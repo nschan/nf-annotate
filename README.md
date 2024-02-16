@@ -69,4 +69,4 @@ All processess will emit their outputs to results, for the ab initio predictions
 The current recommended workflow for assembly and annotation of Arabidopsis from ONT reads is:
 
   * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)
-  * Annotation: This pipeliine.
+  * Annotation: This pipeline.
