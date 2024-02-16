@@ -62,8 +62,8 @@ workflow HRP {
       /* This procedure produces a few broken proteins on TAIR11.
          This is somewhat concerning, but.. well.
       */ 
-      genome = hrp_in.map(row -> [row.sample, row.fasta])
-      ref_gff = hrp_in.map(row -> [row.sample, row.gff])
+      genome = hrp_in.map { row -> [row[0], row[1]] }
+      ref_gff = hrp_in.map { row -> [row[0], row[2]] }
 
       AGAT_EXTRACT_PROTEINS(hrp_in, params.exclude_pattern)
       proteins = AGAT_EXTRACT_PROTEINS.out
