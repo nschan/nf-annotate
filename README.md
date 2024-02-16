@@ -7,13 +7,13 @@ This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-
 
 # Usage
 
-To run the pipeline with a samplesheet on biohpc_gen:
+To run the pipeline with a samplesheet on biohpc_gen with charliecloud:
 
 ```
 git clone https://gitlab.lrz.de/beckerlab/nf-arannotate
 nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
                           --out './results' \
-                          -profile charliecloud,biohpc_gen
+                          -profile biohpc_gen
 ```
 
 # Parameters
