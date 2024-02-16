@@ -1,9 +1,15 @@
 # nf-arannotate
 
-Annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
-It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and cDNA reads.
-This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler)
 
+The current recommended workflow for assembly and annotation of _Arabidopsis_ from ONT reads is:
+
+  * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)
+  * Annotation: This pipeline.
+
+This pipeline is designed to annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
+It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and cDNA reads.
+This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler).
+Since `nf-evmodeler` has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
 
 # Usage
 
@@ -15,6 +21,10 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
                           --out './results' \
                           -profile biohpc_gen
 ```
+
+> Note: HRP makes use of interproscan as a module, since the container is gigantic.
+
+> Note: Some containers are hosted the LRZ gitlab registry. This requires authentication, currently not handled by nextflow. These containers need to be pre-pulled.
 
 # Parameters
 
@@ -56,17 +66,13 @@ This pipeline will:
   * `BAMBU`: Run porechop on cDNA reads and align via minimap2. Then run `bambu`
   * `PASA`: Run the PASA pipeline on bambu output (https://github.com/PASApipeline/PASApipeline/wiki). This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through Evidence Modeler (https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of difficult, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially.
+  * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
 
 The weights for EVidenceModeler are defined in `assets/weights.tsv`
 
 # Outputs
 
 The outputs will be put into `params.out`, defaulting to `./results`. Inside the results folder, the outputs are structured according to the different subworkflows of the pipeline (`workflow/subworkflow/process`). 
-All processess will emit their outputs to results, for the ab initio predictions those are gff files, also for pasa. Evidence modeler will emit gff, bed, pep and cds files containing annotations (gff & bed) and translated sequences (.pep and .cds are fasta formatted).
-
-# Additional information
-
-The current recommended workflow for assembly and annotation of Arabidopsis from ONT reads is:
-
-  * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)
-  * Annotation: This pipeline.
+All processess will emit their outputs to results:
+  * for HRP, the ab initio predictions and pasa those are gff files. 
+  * Evidence modeler will emit gff, bed, pep and cds files containing annotations (gff & bed) and translated sequences (.pep and .cds are fasta formatted).
