@@ -39,23 +39,44 @@
     "properties": {
         "samplesheet": {
             "type": "string",
-            "default": null
+            "default": "None"
         },
         "enable_conda": {
-            "type": "string",
-            "default": null
+            "type": "boolean",
+            "description": "use conda (not supported)"
         },
         "min_contig_length": {
             "type": "string",
-            "default": null
+            "default": "5000",
+            "description": "Minimum contig length to keep"
         },
         "reference_proteins": {
             "type": "string",
-            "default": null
+            "default": "'/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'",
+            "description": "Reference proteins for miniprot"
         },
         "out": {
             "type": "string",
-            "default": null
+            "default": "./results",
+            "description": "Directory for outputs"
+        },
+        "porechop": {
+            "type": "boolean",
+            "description": "Run porechop"
+        },
+        "exclude_pattern": {
+            "type": "string",
+            "description": "Pattern to exclude for HRP",
+            "default": "ATMG"
+        },
+        "nevm": {
+            "type": "string",
+            "hidden": true,
+            "description": "not used",
+            "default": "10"
         }
-    }
+    },
+    "required": [
+        "samplesheet"
+    ]
 }
