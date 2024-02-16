@@ -19,6 +19,8 @@ include { PASA } from './subworkflows/main.nf'
 include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
 
+include { AGAT_GXF2GFF } from './modules/agat/main.nf'
+
 log.info """\
 ==============================================================================================================================================
 ==============================================================================================================================================

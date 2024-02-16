@@ -27,23 +27,23 @@ include { GET_R_GENE_GFF } from '../modules/HRP/local/main'
 De novo annotation and EvidenceModeler modules
 */
 
-include { PORECHOP } from './modules/porechop/main.nf'
-include { SEQKIT_GET_LENGTH } from './modules/seqkit/main.nf'
-include { SEQTK_SUBSET_FASTA } from './modules/seqtk/main.nf'
-include { SUBSET_ANNOTATIONS } from './modules/seqtk/main.nf'
-include { ALIGN_TO_BAM as ALIGN} from './modules/align/main.nf'
-include { BAMBU } from './modules/bambu/main'
-include { SNAP } from './modules/snap/main.nf'
-include { AUGUSTUS_PARALLEL as AUGUSTUS } from './modules/augustus/main.nf'
-include { AGAT_FIX_EXTRACT_TRANSCRIPTS as AGAT_EXTRACT_TRANSCRIPTS } from './modules/agat/main.nf'
-include { AGAT_GTF2GFF } from './modules/agat/main.nf'
-include { AGAT_GXF2GFF } from './modules/agat/main.nf'
-include { PASA_SEQCLEAN } from './modules/pasa_pipeline/main.nf'
-include { PASA_TD } from './modules/pasa_pipeline/main.nf'
-include { PASA_PIPELINE } from './modules/pasa_pipeline/main.nf'
-include { MINIPROT } from './modules/miniprot/main.nf'
-include { TRANSDECODER } from './modules/transdecoder/main.nf'
-include { EVIDENCEMODELER_PART_EXEC_MERGE as EV_RUN } from './modules/evidencemodeler/main.nf'
+include { PORECHOP } from '../modules/porechop/main.nf'
+include { SEQKIT_GET_LENGTH as SEQKIT_CONTIG_LENGTH } from '../modules/seqkit/main.nf'
+include { SEQTK_SUBSET_FASTA } from '../modules/seqtk/main.nf'
+include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
+include { ALIGN_TO_BAM as ALIGN} from '../modules/align/main.nf'
+include { BAMBU } from '../modules/bambu/main'
+include { SNAP } from '../modules/snap/main.nf'
+include { AUGUSTUS_PARALLEL as AUGUSTUS } from '../modules/augustus/main.nf'
+include { AGAT_FIX_EXTRACT_TRANSCRIPTS as AGAT_EXTRACT_TRANSCRIPTS } from '../modules/agat/main.nf'
+include { AGAT_GTF2GFF } from '../modules/agat/main.nf'
+include { AGAT_GXF2GFF } from '../modules/agat/main.nf'
+include { PASA_SEQCLEAN } from '../modules/pasa_pipeline/main.nf'
+include { PASA_TD } from '../modules/pasa_pipeline/main.nf'
+include { PASA_PIPELINE } from '../modules/pasa_pipeline/main.nf'
+include { MINIPROT } from '../modules/miniprot/main.nf'
+include { TRANSDECODER } from '../modules/transdecoder/main.nf'
+include { EVIDENCEMODELER_PART_EXEC_MERGE as EV_RUN } from '../modules/evidencemodeler/main.nf'
 
 /* 
  ===========================================
@@ -147,9 +147,9 @@ workflow GET_R_GENES {
     samples // meta, fasta
 
   main: 
-    SEQKIT_GET_LENGTH(samples, params.min_contig_length)
-    contig_lengths = SEQKIT_GET_LENGTH.out.contig_list
-    SEQTK_SUBSET_FASTA(SEQKIT_GET_LENGTH.out.large_contigs)
+    SEQKIT_CONTIG_LENGTH(samples, params.min_contig_length)
+    contig_lengths = SEQKIT_CONTIG_LENGTH.out.contig_list
+    SEQTK_SUBSET_FASTA(SEQKIT_CONTIG_LENGTH.out.large_contigs)
     prepared_genomes = SEQTK_SUBSET_FASTA.out.subset
 
   emit: 

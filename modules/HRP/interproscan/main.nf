@@ -66,7 +66,8 @@ process INTERPROSCAN {
      -b ${prefix}_interpro   \\
     -T "${PWD}/tmp"
   """
-  
+}
+
 process INTERPROSCAN_EXTENDED {
   tag "$meta"
   label 'process_high'
