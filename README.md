@@ -7,9 +7,9 @@ The current recommended workflow for assembly and annotation of _Arabidopsis_ fr
   * Annotation: This pipeline.
 
 This pipeline is designed to annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
-It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and cDNA reads.
+It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and *cDNA* ONT Nanopore reads.
 This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler).
-Since `nf-evmodeler` has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
+Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
 
 # Usage
 
