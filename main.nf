@@ -110,7 +110,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
    
     HRP
       .out
-      .merged_gff
+      .merged_gtf
       .set { ch_annotation_subset }
 
     ch_genomes
