@@ -62,11 +62,19 @@ workflow HRP {
       /* This procedure produces a few broken proteins on TAIR11.
          This is somewhat concerning, but.. well.
       */ 
-      genome = hrp_in.map { row -> [row[0], row[1]] }
-      ref_gff = hrp_in.map { row -> [row[0], row[2]] }
+      hrp_in
+        .map { row -> [row[0], row[1]] }
+        .set { genome }
+
+      hrp_in
+        .map { row -> [row[0], row[2]] }
+        .set { ref_gff }
 
       AGAT_EXTRACT_PROTEINS(hrp_in, params.exclude_pattern)
-      proteins = AGAT_EXTRACT_PROTEINS.out
+
+      AGAT_EXTRACT_PROTEINS
+        .out
+        .set { proteins }
       // Step 2 Interproscan
       // This step works with spack module interproscan/5.63-95.0
       // I could not locate a container with this version.
@@ -81,50 +89,104 @@ workflow HRP {
       INTERPROSCAN_PFAM(proteins)
       //INTERPROSCAN_EXTENDED(proteins)
       // Step 3.1 Bedfile
-      bedtools_gf_in = proteins.join(INTERPROSCAN_PFAM.out.nb_bed)
+      proteins
+        .join(INTERPROSCAN_PFAM.out.nb_bed)
+        .set { bedtools_gf_in }
       // Step 3.2 Extract
       BEDTOOLS_GETFASTA(bedtools_gf_in)
       // Step 3.3 MEME
       MEME(BEDTOOLS_GETFASTA.out)
       // Step 4 MAST
-      MAST(proteins.join(MEME.out))
+      MAST(proteins
+            .join(MEME.out))
       // Step 5
 
-      to_subset = proteins
-                    .join(INTERPROSCAN_PFAM.out.protein_tsv
-                    .join(MAST.out.mast_geneids))
+      proteins
+        .join(INTERPROSCAN_PFAM
+                .out
+                .protein_tsv
+                .join(
+                  MAST
+                  .out
+                  .mast_geneids
+                  )
+          )
+        .set { to_subset }
                     
       SEQTK_SUBSET_RPS(to_subset)
 
       INTERPROSCAN_SUPERFAMILY(SEQTK_SUBSET_RPS.out)
       // Step 6
       //IPS2FPG(INTERPROSCAN_PFAM.out.protein_tsv.join(INTERPROSCAN_SUPERFAMILY.out))
-      FILTER_R_GENES(INTERPROSCAN_PFAM.out.protein_tsv.join(INTERPROSCAN_SUPERFAMILY.out))
+      FILTER_R_GENES(
+        INTERPROSCAN_PFAM
+        .out
+        .protein_tsv
+        .join(INTERPROSCAN_SUPERFAMILY.out)
+        )
       // Step 7
       SEQTK_SUBSET_FL(proteins
-                      .join(FILTER_R_GENES.out.full_length_tsv))
+                      .join(
+                        FILTER_R_GENES
+                        .out
+                        .full_length_tsv)
+                      )
       // Genblast
-      genblast_in = genome.join(SEQTK_SUBSET_FL.out)
+      genome
+        .join(SEQTK_SUBSET_FL.out)
+        .set { genblast_in }
+
       GENBLAST_G(genblast_in)
-      SEQKIT_GET_LENGTH(GENBLAST_G.out.genblast_pro)
+
+      SEQKIT_GET_LENGTH(GENBLAST_G
+                        .out
+                        .genblast_pro)
+
       // Step 8.1
-      AGAT_FILTER_BY_LENGTH(GENBLAST_G.out.genblast_gff)
+      AGAT_FILTER_BY_LENGTH(GENBLAST_G
+                              .out
+                              .genblast_gff)
+  
       // Step 8.2
-      BEDTOOLS_CLUSTER(AGAT_FILTER_BY_LENGTH.out.filtered_bed)
+      BEDTOOLS_CLUSTER(AGAT_FILTER_BY_LENGTH
+                        .out
+                        .filtered_bed)
+
       // Step 8.3
       // Step 8.4
-      BEDTOOLS_NR_CLUSTERS(BEDTOOLS_CLUSTER.out.join(SEQKIT_GET_LENGTH.out))
+      BEDTOOLS_NR_CLUSTERS(BEDTOOLS_CLUSTER
+                            .out
+                            .join(SEQKIT_GET_LENGTH.out))
+
       // Step 9
       //   Extract annotations of non-redundant genes
-      GET_R_GENE_GFF(AGAT_FILTER_BY_LENGTH.out.filtered_gff.join(BEDTOOLS_NR_CLUSTERS.out))
+      GET_R_GENE_GFF(AGAT_FILTER_BY_LENGTH
+                      .out
+                      .filtered_gff
+                      .join(BEDTOOLS_NR_CLUSTERS.out))
+
       //   Extract protein sequences
-      AGAT_EXTRACT_NLR(genome.join(GET_R_GENE_GFF.out.r_genes_merged_gff))
+      AGAT_EXTRACT_NLR(genome
+                        .join(GET_R_GENE_GFF
+                                .out
+                                .r_genes_merged_gff))
+
       //   Merge R-Gene gff and input gff
-      AGAT_COMPLEMENT(ref_gff.join(GET_R_GENE_GFF.out.r_genes_merged_gff))
+      AGAT_COMPLEMENT(ref_gff
+                        .join(GET_R_GENE_GFF
+                                .out
+                                .r_genes_merged_gff))
       //   Interproscan of NLR-Candidates
       // INTERPROSCAN(AGAT_EXTRACT_NLR.out)
-      merged_gff = AGAT_COMPLEMENT.out.merged_gff
-      merged_gtf = AGAT_COMPLEMENT.out.merged_gtf
+      AGAT_COMPLEMENT
+        .out
+        .merged_gff
+        .set { merged_gff }
+
+      AGAT_COMPLEMENT
+        .out
+        .merged_gtf
+        .set { merged_gtf }
 
     emit:
         merged_gff
@@ -138,7 +200,9 @@ workflow GET_R_GENES {
 
     main:
       AGAT_EXTRACT_PROTEINS(inputs, params.exclude_pattern)
+
       INTERPROSCAN_FULL(AGAT_EXTRACT_PROTEINS.out)
+      
       FILTER_R_GENES(INTERPROSCAN_FULL.out.protein_tsv)
 }
 
@@ -148,9 +212,18 @@ workflow GET_R_GENES {
 
   main: 
     SEQKIT_CONTIG_LENGTH(samples, params.min_contig_length)
-    contig_lengths = SEQKIT_CONTIG_LENGTH.out.contig_list
+
+    SEQKIT_CONTIG_LENGTH
+      .out
+      .contig_list
+      .set { contig_lengths }
+
     SEQTK_SUBSET_FASTA(SEQKIT_CONTIG_LENGTH.out.large_contigs)
-    prepared_genomes = SEQTK_SUBSET_FASTA.out.subset
+
+    SEQTK_SUBSET_FASTA
+      .out
+      .subset
+      .set { prepared_genomes }
 
   emit: 
     prepared_genomes //meta, fasta
@@ -162,7 +235,12 @@ workflow GET_R_GENES {
     annotations // meta, liftfoff, contig_lengths
   main: 
     SUBSET_ANNOTATIONS(annotations)
-  annotation_subset = SUBSET_ANNOTATIONS.out.annotations
+
+    SUBSET_ANNOTATIONS
+      .out
+      .annotations
+      .set { annotation_subset }
+
   emit: 
     annotation_subset
  }
@@ -178,23 +256,46 @@ workflow GET_R_GENES {
 
   main:
   
-    ch_reads = ch_bambu.map { it -> [it[0], it[3]] }
-    ch_genome = ch_bambu.map { it -> [it[0], it[1]] }
-    ch_bambu_in = ch_bambu.map { it -> [it[0], it[1], it[2]] }
+    ch_bambu
+      .map { it -> [it[0], it[3]] }
+      .set { ch_reads }
+
+    ch_bambu
+      .map { it -> [it[0], it[1]] }
+      .set { ch_genome }
+
+    ch_bambu
+      .map { it -> [it[0], it[1], it[2]] }
+      .set { ch_bambu_in }
 
     if(params.porechop) {
+
       PORECHOP(ch_reads)
-      ch_aln = PORECHOP
-                .out
-                .reads
-                .map { it -> [it[0],it[1]] }
-                .join(ch_genome)
+
+      PORECHOP
+        .out
+        .reads
+        .map { it -> [it[0],it[1]] }
+        .join(ch_genome)
+        .set { ch_aln }
+
     } else {
-      ch_aln = ch_reads.join(ch_genome)
+
+      ch_reads
+        .join(ch_genome)
+        .set { ch_aln }
+
     }
+
     ALIGN(ch_aln)
-    BAMBU(ch_bambu_in.join(ALIGN.out))
-    bambu_gtf = BAMBU.out.extended_gtf
+
+    BAMBU(ch_bambu_in
+            .join(ALIGN.out))
+
+    BAMBU
+      .out
+      .extended_gtf
+      .set { bambu_gtf }
 
   emit:
     bambu_gtf
@@ -214,11 +315,23 @@ workflow GET_R_GENES {
 
   main:
     AUGUSTUS(ch_genomes)
+
+    AUGUSTUS
+      .out
+      .set { augustus }
+
     SNAP(ch_genomes)
+
+    SNAP
+      .out
+      .snap_gff
+      .set { snap }
+
     MINIPROT(ch_genomes)
-    augustus = AUGUSTUS.out
-    snap = SNAP.out.snap_gff
-    miniprot = MINIPROT.out
+    
+    MINIPROT
+      .out
+      .set { miniprot }
 
   emit:
     augustus
@@ -237,15 +350,30 @@ workflow GET_R_GENES {
 
   main:
     AGAT_GTF2GFF(ch_genomes_bambu)
+
     AGAT_EXTRACT_TRANSCRIPTS(AGAT_GTF2GFF.out)
+
     PASA_PIPELINE(ch_genomes.join(AGAT_EXTRACT_TRANSCRIPTS.out))
 
-    td_in = PASA_PIPELINE.out.pasa_assembly_fasta
-              .join(PASA_PIPELINE.out.pasa_assembly_gff)
+    PASA_PIPELINE
+      .out
+      .pasa_assembly_fasta
+      .join(PASA_PIPELINE
+              .out
+              .pasa_assembly_gff)
+      .set { td_in }
     
+    PASA_PIPELINE
+      .out
+      .pasa_assembly_gff
+      .set { pasa }
+
     PASA_TD(td_in)
-    pasa = PASA_PIPELINE.out.pasa_assembly_gff
-    pasa_td = PASA_TD.out.genome_gff
+
+    PASA_TD
+      .out
+      .genome_gff
+      .set { pasa_td }
 
   emit:
     pasa
@@ -261,8 +389,13 @@ workflow CDS_FROM_ANNOT {
 
     main: 
     AGAT_EXTRACT_TRANSCRIPTS(ch_annot)
+
     TRANSDECODER(AGAT_EXTRACT_TRANSCRIPTS.out)
-    transdecoder = TRANSDECODER.out.td_gff
+
+    TRANSDECODER
+      .out
+      .td_gff
+      .set { transdecoder }
 
     emit:
     transdecoder
@@ -277,6 +410,7 @@ reasons.
 workflow EV_MODELER {
     take:
       ev_in
+
     main:
     EV_RUN(ev_in)
 
