@@ -10,7 +10,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # Args are:
 # file1 (e.g. Pfam)
-# file2 (e.g. Superfamily)
+# file2 (e.g. Superfam)
+# more files
 # outfile (Basename only)
 
 # Define domain - pfam or superfam relationships
@@ -101,9 +102,9 @@ NB_pfam <-  filter(domains_pfam, Class == "N")
 
 # Read in files
 
-rbind(
-  read_tsv(args[1], col_names = F, show_col_types = FALSE)
-) %>%
+lapply(args[1:(length(args)-1)],
+       \(x) read_tsv(x, col_names = F, show_col_types = FALSE)) %>%
+  bind_rows() %>%
   magrittr::set_colnames(
     c(
       "ID",
@@ -178,8 +179,8 @@ rbind(
   )) %>% 
   ungroup() %T>%
   # Write larger table
-  write_tsv(paste0(args[2],"_NLR_table.tsv")) %>% 
+  write_tsv(paste0(args[length(args)],"_NLR_table.tsv")) %>% 
   dplyr::select(ID, Type) %>% 
   # Write relevant table
-  write_tsv(paste0(args[2],"_NLR_genes.tsv"))
+  write_tsv(paste0(args[length(args)],"_NLR_genes.tsv"))
          

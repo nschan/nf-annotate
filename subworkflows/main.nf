@@ -15,7 +15,8 @@ include { INTERPROSCAN as INTERPROSCAN_FULL } from '../modules/HRP/interproscan/
 include { INTERPROSCAN_EXTENDED } from '../modules/HRP/interproscan/main'
 include { INTERPROSCAN_PFAM } from '../modules/HRP/interproscan/main'
 include { INTERPROSCAN_SUPERFAMILY } from '../modules/HRP/interproscan/main'
-include { FILTER_R_GENES } from '../modules/HRP/local/main'
+include { FILTER_R_GENES as HRP_FILTER_R_GENES } from '../modules/HRP/local/main'
+include { FILTER_R_GENES_SINGLE_INPUT as FIND_R_GENES } from '../modules/HRP/local/main'
 include { SEQTK_SUBSET_RPS } from '../modules/HRP/seqtk/main'
 include { SEQTK_SUBSET_FL } from '../modules/HRP/seqtk/main'
 include { SEQTK_SUBSET_CANDIDATES } from '../modules/HRP/seqtk/main'
@@ -117,8 +118,7 @@ workflow HRP {
 
       INTERPROSCAN_SUPERFAMILY(SEQTK_SUBSET_RPS.out)
       // Step 6
-      //IPS2FPG(INTERPROSCAN_PFAM.out.protein_tsv.join(INTERPROSCAN_SUPERFAMILY.out))
-      FILTER_R_GENES(
+      HRP_FILTER_R_GENES(
         INTERPROSCAN_PFAM
         .out
         .protein_tsv
@@ -127,7 +127,7 @@ workflow HRP {
       // Step 7
       SEQTK_SUBSET_FL(proteins
                       .join(
-                        FILTER_R_GENES
+                        HRP_FILTER_R_GENES
                         .out
                         .full_length_tsv)
                       )
@@ -201,9 +201,9 @@ workflow GET_R_GENES {
     main:
       AGAT_EXTRACT_PROTEINS(inputs, params.exclude_pattern)
 
-      INTERPROSCAN_FULL(AGAT_EXTRACT_PROTEINS.out)
+      INTERPROSCAN_PFAM(AGAT_EXTRACT_PROTEINS.out)
       
-      FILTER_R_GENES(INTERPROSCAN_FULL.out.protein_tsv)
+      FIND_R_GENES(INTERPROSCAN_PFAM.out.protein_tsv)
 }
 
  workflow PREPARE_GENOMES {

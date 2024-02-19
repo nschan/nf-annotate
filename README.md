@@ -1,6 +1,5 @@
 # nf-arannotate
 
-
 The current recommended workflow for assembly and annotation of _Arabidopsis_ from ONT reads is:
 
   * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)

@@ -172,7 +172,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
              )
         .set { ch_evm_annotations }
 
-    GET_R_GENES(ch_evm_annotations)
+    GET_R_GENES(ch_evm_annotations) // tuple val(meta), path(fasta), path(gff)
 
  }
 
