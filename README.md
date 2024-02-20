@@ -10,6 +10,10 @@ It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and *
 This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler).
 Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
 
+# Graph
+
+![Tubemap](nf-arannotate.tubes.png)
+
 # Usage
 
 To run the pipeline with a samplesheet on biohpc_gen with charliecloud:
