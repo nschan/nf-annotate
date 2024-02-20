@@ -7,8 +7,6 @@ The current recommended workflow for assembly and annotation of _Arabidopsis_ fr
 
 This pipeline is designed to annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
 It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and *cDNA* ONT Nanopore reads.
-This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler).
-Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
 
 # Graph
 
@@ -79,3 +77,8 @@ The outputs will be put into `params.out`, defaulting to `./results`. Inside the
 All processess will emit their outputs to results:
   * for HRP, the ab initio predictions and pasa those are gff files. 
   * Evidence modeler will emit gff, bed, pep and cds files containing annotations (gff & bed) and translated sequences (.pep and .cds are fasta formatted).
+
+# Pipeline information 
+
+This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) with minor modifications.
+Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
