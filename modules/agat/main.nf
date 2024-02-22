@@ -91,3 +91,32 @@ process AGAT_GTF2GFF {
     -o ${meta}_bambu.gff
   """
 }
+
+process AGAT_FUNCTIONAL_ANNOTATION {
+  tag "$meta"
+  label 'process_medium'
+
+  publishDir "${params.out}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename,
+                                        options:params.options, 
+                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
+                                        publish_id:meta) }
+  input:
+      tuple val(meta), path(gff), path(blast_results), path(interpro_results)
+      tuple val(meta2), path(blast_reference)
+  
+  output:
+      tuple val(meta), path(genome) , path("*_functional.gff"), emit: gff_file
+  
+  script:
+      def prefix = task.ext.prefix ?: "${meta}"
+  """
+  agat_sp_manage_functional_annotation.pl \\
+    -f ${gff} \\
+    -b ${blast_results} \\
+    --db ${blast_reference} \\
+    -i ${interpro_results} \\
+    --output ${meta}_functional.gff
+  """
+}

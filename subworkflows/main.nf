@@ -1,5 +1,7 @@
 /*
-HRP modules
+==============================================
+                HRP modules
+==============================================
 */
 
 include { AGAT_FILTER_BY_LENGTH } from '../modules/HRP/agat/main'
@@ -25,26 +27,58 @@ include { SEQKIT_GET_LENGTH } from '../modules/HRP/seqkit/main'
 include { GET_R_GENE_GFF } from '../modules/HRP/local/main'
 
 /*
+==============================================
 De novo annotation and EvidenceModeler modules
+==============================================
+*/
+
+/*
+Processing of reads, genomes and annotations
 */
 
 include { PORECHOP } from '../modules/porechop/main.nf'
 include { SEQKIT_GET_LENGTH as SEQKIT_CONTIG_LENGTH } from '../modules/seqkit/main.nf'
 include { SEQTK_SUBSET_FASTA } from '../modules/seqtk/main.nf'
 include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
-include { ALIGN_TO_BAM as ALIGN} from '../modules/align/main.nf'
-include { BAMBU } from '../modules/bambu/main'
-include { SNAP } from '../modules/snap/main.nf'
-include { AUGUSTUS_PARALLEL as AUGUSTUS } from '../modules/augustus/main.nf'
 include { AGAT_FIX_EXTRACT_TRANSCRIPTS as AGAT_EXTRACT_TRANSCRIPTS } from '../modules/agat/main.nf'
 include { AGAT_GTF2GFF } from '../modules/agat/main.nf'
 include { AGAT_GXF2GFF } from '../modules/agat/main.nf'
+include { AGAT_FUNCTIONAL_ANNOTATION } from '../modules/agat/main.nf'
+
+/*
+Ab initio
+*/
+include { SNAP } from '../modules/snap/main.nf'
+include { AUGUSTUS_PARALLEL as AUGUSTUS } from '../modules/augustus/main.nf'
+include { MINIPROT } from '../modules/miniprot/main.nf'
+
+/* 
+Bambu
+*/
+
+include { ALIGN_TO_BAM as ALIGN} from '../modules/align/main.nf'
+include { BAMBU } from '../modules/bambu/main'
+
+
+/*
+PASA
+*/
 include { PASA_SEQCLEAN } from '../modules/pasa_pipeline/main.nf'
 include { PASA_TD } from '../modules/pasa_pipeline/main.nf'
 include { PASA_PIPELINE } from '../modules/pasa_pipeline/main.nf'
-include { MINIPROT } from '../modules/miniprot/main.nf'
 include { TRANSDECODER } from '../modules/transdecoder/main.nf'
+
+/*
+Evidence modeler
+*/
 include { EVIDENCEMODELER_PART_EXEC_MERGE as EV_RUN } from '../modules/evidencemodeler/main.nf'
+
+/*
+BLAST
+*/
+
+include { MAKEBLASTDB } from '../modules/blast/makeblastdb/main.nf'
+include { BLASTP } from '../modules/blast/blastp/main.nf'
 
 /* 
  ===========================================
@@ -202,8 +236,22 @@ workflow GET_R_GENES {
       AGAT_EXTRACT_PROTEINS(inputs, params.exclude_pattern)
 
       INTERPROSCAN_PFAM(AGAT_EXTRACT_PROTEINS.out)
+      INTERPROSCAN_PFAM
+        .out
+        .protein_tsv
+        .set { pfam_out }
       
       FIND_R_GENES(INTERPROSCAN_PFAM.out.protein_tsv)
+      FIND_R_GENES
+        .out
+        .full_length_tsv
+        .set { r_gene_gff }
+
+    emit: 
+      r_gene_gff
+      pfam_out
+
+      
 }
 
  workflow PREPARE_GENOMES {
@@ -418,3 +466,49 @@ workflow EV_MODELER {
     EV_RUN.out.gff
 }
 
+ /* 
+ ===========================================
+        BLAST against references
+ ===========================================
+ */
+
+ workflow BLAST {
+    take:
+      query // meta, genome, annotations
+      reference // meta, protein fasta
+
+    main:
+      MAKEBLASTDB(reference)
+      AGAT_EXTRACT_PROTEINS(query, params.exclude_pattern)
+      BLASTP(AGAT_EXTRACT_PROTEINS.out,
+             MAKEBLASTDB.out.db.first(),
+             "tsv" )
+      BLASTP
+        .out
+        .tsv
+        .set { blast_table }
+
+    emit:
+      blast_table
+ } 
+
+  /* 
+ ===========================================
+      Combine functional annotations
+ ===========================================
+ */
+
+ workflow FUNCTIONAL {
+  take:
+    annotations // meta, gff
+    blast_reference // meta2, protein fasta
+    blast_output // meta, tsv
+    interpro_tsv // meta, tsv
+  
+  main:
+    annotations
+      .join(blast_output)
+      .join(interpro_tsv)
+      .set { annotation_and_function }
+    AGAT_FUNCTIONAL_ANNOTATION(annotation_and_function, blast_reference)
+ }

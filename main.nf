@@ -5,6 +5,7 @@ params.porechop = false
 params.publish_dir_mode = 'copy'
 params.min_contig_length = 5000
 params.exclude_pattern = "ATMG"
+params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
 params.out = './results'
 params.nevm = 10
@@ -18,6 +19,8 @@ include { AB_INITIO } from './subworkflows/main.nf'
 include { PASA } from './subworkflows/main.nf'
 include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
+include { BLAST } from './subworkflows/main.nf'
+include { FUNCTIONAL } from './subworkflows/main.nf'
 
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
 
@@ -174,6 +177,23 @@ Niklas Schandry                                  niklas@bio.lmu.de              
 
     GET_R_GENES(ch_evm_annotations) // tuple val(meta), path(fasta), path(gff)
 
+    GET_R_GENES
+      .out
+      .pfam_out
+      .set { ch_interproscan_results }
+
+    Channel
+      .of( [params.reference_name, params.reference_proteins] )
+      .set { ch_ref_proteins }
+
+    BLAST(ch_evm_annotations, ch_ref_proteins)
+
+    FUNCTIONAL(
+      EV_MODELER.out,
+      ch_ref_proteins,
+      BLAST.out.blast_table,
+      ch_interproscan_results
+    )
  }
 
  workflow {

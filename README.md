@@ -34,7 +34,8 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 | `--porechop` | Run porechop on the reads? (default: `false`) |
 | `--exclude_patterm` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--samplesheet` | Path to samplesheet |
-| `--protein_ref` | Protein reference (defaults to Col-CEN) |
+| `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
+| `--reference_proteins` | Protein reference (defaults to Col-CEN) |
 | `--min_contig_length` | minimum length of contigs to keep (default: 5000) |
 | `--out` | Results directory, default: `'./results'` |
 
@@ -68,6 +69,7 @@ This pipeline will:
   * `PASA`: Run the PASA pipeline on bambu output (https://github.com/PASApipeline/PASApipeline/wiki). This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through Evidence Modeler (https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of difficult, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
+  * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`.
 
 The weights for EVidenceModeler are defined in `assets/weights.tsv`
 
