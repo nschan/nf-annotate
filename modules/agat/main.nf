@@ -112,7 +112,10 @@ process AGAT_FUNCTIONAL_ANNOTATION {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-  sed 's/gene=ID=\\(.*\\)/GN=\\1 PE=1 SV=1/g' ${blast_reference} > modified_${blast_reference}
+  sed 's/>\\(AT[A-Z0-9]*\\)/>\\1 unknown GN=\\1 PE=1 SV=1/g' ${blast_reference} \\
+    | sed 's/gene=ID=\\(.*\\)/unknown GN=\\1 PE=1 SV=1/g' \\
+    | sed 's/>ID=/>/g' > modified_${blast_reference}
+
   agat_sp_manage_functional_annotation.pl \\
     -f ${gff} \\
     -b ${blast_results} \\

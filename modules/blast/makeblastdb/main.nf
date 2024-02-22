@@ -35,7 +35,10 @@ process MAKEBLASTDB {
     if [ "${is_compressed}" == "true" ]; then
         gzip -c -d ${fasta} > ${fasta_name}
     fi
-    sed 's/gene=ID=\\(.*\\)/GN=\\1 PE=1 SV=1/g' ${fasta_name} > modified_${fasta_name}
+    sed 's/>\\(AT[A-Z0-9]*\\)/>\\1 unknown GN=\\1 PE=1 SV=1/g' ${fasta_name} \\
+      | sed 's/gene=ID=\\(.*\\)/unknown GN=\\1 PE=1 SV=1/g' \\
+      | sed 's/>ID=/>/g' > modified_${fasta_name}
+
     makeblastdb \\
         -in modified_${fasta_name} \\
         -dbtype prot \\
