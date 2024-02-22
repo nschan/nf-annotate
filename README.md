@@ -84,3 +84,16 @@ All processess will emit their outputs to results:
 
 This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) with minor modifications.
 Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
+
+# Known issues
+
+## Interproscan
+
+The main challenge in this whole process is running `interproscan`. On `biohpc_gen` I am using a spack module to run this, a container would also be an option.
+If you would like to run this, you will need to either create a `spack` module / `module` module or a container that contains `interproscan` and the several GB of data required to run it.
+This will create a container of ~10 GB, which does not fit into the container registry I am using. Most `interproscan` containers I came across come without this data and it has to be added in somehow (either through mounting or by adding it into the container).
+
+## genblastG
+
+`genblastG` has been abandoned for several years. Getting it into a container was a bit annoying, and even with the container the module is a bit akward.
+This module sometimes crashes, I do not know why, usually retrying solves the problem.

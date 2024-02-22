@@ -57,6 +57,7 @@ process BLASTP {
         -out ${prefix}.${out_ext} \\
         -db \$DB \\
         -num_threads ${task.cpus} \\
+        -max_target_seqs 10 \\
         -outfmt ${outfmt} \\
         ${args}
 

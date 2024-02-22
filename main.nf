@@ -190,9 +190,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
 
     FUNCTIONAL(
       EV_MODELER.out,
-      ch_ref_proteins,
       BLAST.out.blast_table,
-      ch_interproscan_results
+      ch_interproscan_results,
+      ch_ref_proteins.first()
     )
  }
 

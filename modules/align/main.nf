@@ -3,6 +3,8 @@ include { initOptions; saveFiles; getSoftwareName } from './functions'
 params.options = [:]
 options        = initOptions(params.options)
 
+// Dockerfile for minimap2-samtools container is in this folder.
+
 process ALIGN_TO_BAM {
     tag "$meta"
     label 'process_low'

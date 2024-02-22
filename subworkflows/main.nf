@@ -501,9 +501,9 @@ workflow EV_MODELER {
  workflow FUNCTIONAL {
   take:
     annotations // meta, gff
-    blast_reference // meta2, protein fasta
     blast_output // meta, tsv
     interpro_tsv // meta, tsv
+    blast_reference // meta2, protein fasta
   
   main:
     annotations
