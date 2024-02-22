@@ -107,16 +107,17 @@ process AGAT_FUNCTIONAL_ANNOTATION {
       tuple val(meta2), path(blast_reference)
   
   output:
-      tuple val(meta), path(genome) , path("*_functional.gff"), emit: gff_file
+      tuple val(meta), path("*_functional.gff"), emit: gff_file
   
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
+  sed 's/ID=\\(.*\\)/GN=\\1/g' ${blast_reference} > modified_${blast_reference}
   agat_sp_manage_functional_annotation.pl \\
     -f ${gff} \\
     -b ${blast_results} \\
-    --db ${blast_reference} \\
-    -i ${interpro_results} \\
-    --output ${meta}_functional.gff
+    --db modified_${blast_reference} \\
+    -i ${interpro_results} > ${meta}_functional.agat.out
+  sed '1,/Formating output to GFF3/d' ${meta}_functional.agat.out > ${meta}_functional.gff
   """
 }

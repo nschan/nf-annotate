@@ -35,14 +35,14 @@ process MAKEBLASTDB {
     if [ "${is_compressed}" == "true" ]; then
         gzip -c -d ${fasta} > ${fasta_name}
     fi
-
+    sed 's/ID=\\(.*\\)/GN=\\1/g' ${fasta_name} > modified_${fasta_name}
     makeblastdb \\
-        -in ${fasta_name} \\
+        -in modified_${fasta_name} \\
         -dbtype prot \\
         ${args}
 
     mkdir -p ${prefix}
-    mv ${fasta_name}* ${prefix}
+    mv  modified_${fasta_name}* ${prefix}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

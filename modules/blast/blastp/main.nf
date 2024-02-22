@@ -52,9 +52,10 @@ process BLASTP {
     fi
 
     DB=`find -L ./ -name "*.phr" | sed 's/\\.phr\$//'`
+    
     blastp \\
         -query ${fasta_name} \\
-        -out ${prefix}.${out_ext} \\
+        -out ${prefix}_blast.${out_ext} \\
         -db \$DB \\
         -num_threads ${task.cpus} \\
         -max_target_seqs 10 \\
