@@ -35,7 +35,7 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 | `--exclude_patterm` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--samplesheet` | Path to samplesheet |
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
-| `--reference_proteins` | Protein reference (defaults to Col-CEN) |
+| `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
 | `--min_contig_length` | minimum length of contigs to keep (default: 5000) |
 | `--out` | Results directory, default: `'./results'` |
 
@@ -85,7 +85,7 @@ All processess will emit their outputs to results:
 This pipeline is a combination of [`nf-hrp`](https://gitlab.lrz.de/beckerlab/nf-hrp) and [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) with minor modifications.
 Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been equipped to perform alignments and run bambu, it seeemed reasonable to put all annotation steps into a single pipeline (this).
 
-# Known issues
+# Known issues & edge case handling
 
 ## Interproscan
 
@@ -97,3 +97,9 @@ This will create a container of ~10 GB, which does not fit into the container re
 
 `genblastG` has been abandoned for several years. Getting it into a container was a bit annoying, and even with the container the module is a bit akward.
 This module sometimes crashes, I do not know why, usually retrying solves the problem.
+
+## BLAST / AGAT_FUNCTIONAL_ANNOTATION
+
+`agat_sp_manage_functional_annotation.pl` is looking for `GN=` in the headers of the `.fasta` file used as a db for `BLASTP` to assign a *g*ene *n*ame.
+Currently, this is created by replacing `ID=XXXX` with `GN=XXXX`. Presumably, this is not something that yields desired results for all inputs.
+The easiest solution would be to correctly prepare the protein fasta in such a way that it contains `GN=` with the appropriate gene names.
