@@ -76,9 +76,8 @@ The weights for EVidenceModeler are defined in `assets/weights.tsv`
 # Outputs
 
 The outputs will be put into `params.out`, defaulting to `./results`. Inside the results folder, the outputs are structured according to the different subworkflows of the pipeline (`workflow/subworkflow/process`). 
-All processess will emit their outputs to results:
-  * for HRP, the ab initio predictions and pasa those are gff files. 
-  * Evidence modeler will emit gff, bed, pep and cds files containing annotations (gff & bed) and translated sequences (.pep and .cds are fasta formatted).
+All processess will emit their outputs to results.
+[`AGAT`](https://github.com/NBISweden/AGAT/) is used throughout this pipeline, hopefully ensuring consistent gff formating.
 
 # Pipeline information 
 
@@ -100,6 +99,8 @@ This module sometimes crashes, I do not know why, usually retrying solves the pr
 
 ## BLAST / AGAT_FUNCTIONAL_ANNOTATION
 
-`agat_sp_manage_functional_annotation.pl` is looking for `GN=` in the headers of the `.fasta` file used as a db for `BLASTP` to assign a *g*ene *n*ame.
-Currently, this is created by replacing `ID=XXXX` with `GN=XXXX`. Presumably, this is not something that yields desired results for all inputs.
-The easiest solution would be to correctly prepare the protein fasta in such a way that it contains `GN=` with the appropriate gene names.
+`agat_sp_manage_functional_annotation.pl` is looking for `GN=` in the headers of the `.fasta` file used as a db for `BLASTP` to assign a **g**ene **n**ame.
+
+Currently, this is handled using `sed` for a very specific case: the annotations that come with [Col-CEN-v1.2](https://github.com/schatzlab/Col-CEN).
+
+The easiest solution would be to correctly prepare the protein fasta in such a way that it contains `GN=` with the appropriate gene names. In that case modules `MAKEBLASTDB` and `AGAT_FUNCTIONAL_ANNOTATION` need to be edited.

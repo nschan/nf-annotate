@@ -5,7 +5,6 @@ options        = initOptions(params.options)
 
 process BAMBU {
     tag "$meta"
-    label 'process_low'
     publishDir "${params.out}",
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename,
