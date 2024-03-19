@@ -23,7 +23,7 @@ process ALIGN_TO_BAM {
     script:
         """
         minimap2 -t $task.cpus \\
-            -ax splice ${reference} ${reads} \\
+            -ax splice:hq -uf ${reference} ${reads} \\
             | samtools sort -o ${meta}_${reference}.bam
         """
 }
