@@ -97,10 +97,10 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       .set { ch_genomes }
 
     PREPARE_ANNOTATIONS(ch_initial_annotations
-                        .join(
-                          PREPARE_GENOMES
-                          .out
-                          .contig_lengths
+                          .join(
+                            PREPARE_GENOMES
+                            .out
+                            .contig_lengths
                           )
                         )
     ch_genomes
@@ -120,7 +120,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
 
     ch_genomes
       .join(ch_annotation_subset)
-      .join(ch_samples.map { it -> [it.sample, it.reads] } ) 
+      .join(ch_samples
+            .map { it -> [it.sample, it.reads] } 
+            ) 
       .set { ch_bambu } // sample, genome_assembly, liftoff, reads 
 
     AB_INITIO(ch_genomes)

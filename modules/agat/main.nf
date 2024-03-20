@@ -124,3 +124,27 @@ process AGAT_FUNCTIONAL_ANNOTATION {
   sed '1,/Formating output to GFF3/d' ${meta}_functional.agat.out > ${meta}_functional.gff
   """
 }
+process AGAT_GFF2GTF {
+  tag "$meta"
+  label 'process_medium'
+
+  publishDir "${params.out}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename,
+                                        options:params.options, 
+                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
+                                        publish_id:meta) }
+  input:
+      tuple val(meta), path(gff)
+  
+  output:
+      tuple val(meta), path("*.gtf"), emit: gtf_file
+  
+  script:
+      def prefix = task.ext.prefix ?: "${meta}"
+  """
+  agat_convert_sp_gff2gtf.pl \\
+  --gff ${gff} \\
+  -o ${gff.baseName}.gtf 
+  """
+}

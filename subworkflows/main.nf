@@ -43,6 +43,7 @@ include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
 include { AGAT_FIX_EXTRACT_TRANSCRIPTS as AGAT_EXTRACT_TRANSCRIPTS } from '../modules/agat/main.nf'
 include { AGAT_GTF2GFF } from '../modules/agat/main.nf'
 include { AGAT_GXF2GFF } from '../modules/agat/main.nf'
+include { AGAT_GFF2GTF } from '../modules/agat/main.nf'
 include { AGAT_FUNCTIONAL_ANNOTATION } from '../modules/agat/main.nf'
 
 /*
@@ -511,4 +512,5 @@ workflow EV_MODELER {
       .join(interpro_tsv)
       .set { annotation_and_function }
     AGAT_FUNCTIONAL_ANNOTATION(annotation_and_function, blast_reference)
+    AGAT_GFF2GTF(AGAT_FUNCTIONAL_ANNOTATION.gff_file)
  }
