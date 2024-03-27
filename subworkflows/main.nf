@@ -512,5 +512,5 @@ workflow EV_MODELER {
       .join(interpro_tsv)
       .set { annotation_and_function }
     AGAT_FUNCTIONAL_ANNOTATION(annotation_and_function, blast_reference)
-    AGAT_GFF2GTF(AGAT_FUNCTIONAL_ANNOTATION.gff_file)
+    AGAT_GFF2GTF(AGAT_FUNCTIONAL_ANNOTATION.out.gff_file)
  }
