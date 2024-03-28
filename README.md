@@ -56,7 +56,7 @@ sample,genome_assembly,liftoff,reads
 
 # Procedure
 
-This pipeline will:
+This pipeline will run the following subworkflows:
   
   * `SUBSET_GENOMES`: Subset to genome to `params.min_contig_length`
   * `SUBSET_ANNOTATIONS`: Subset input gff to contigs larger than `params.min_contig_length`
@@ -65,11 +65,11 @@ This pipeline will:
     - `SNAP` https://github.com/KorfLab/SNAP/tree/master
     - `AUGUSTUS` https://github.com/Gaius-Augustus/Augustus (kind of paralellized)
     - `MINIPROT` https://github.com/lh3/miniprot
-  * `BAMBU`: Run porechop on cDNA reads and align via minimap2. Then run `bambu`
+  * `BAMBU`: Run `porechop` (optional) on cDNA reads and align via `minimap2` in `splice:hq` mode. Then run `bambu`
   * `PASA`: Run the PASA pipeline on bambu output (https://github.com/PASApipeline/PASApipeline/wiki). This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
-  * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through Evidence Modeler (https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of difficult, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially.
+  * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through Evidence Modeler (https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of difficult, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
-  * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`.
+  * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`. Produces protein fasta. Creates `.gff` and `.gtf` outputs. Also quantifies transcripts via `bambu`
 
 The weights for EVidenceModeler are defined in `assets/weights.tsv`
 

@@ -128,6 +128,11 @@ Niklas Schandry                                  niklas@bio.lmu.de              
     AB_INITIO(ch_genomes)
 
     RUN_BAMBU(ch_bambu)
+
+    RUN_BAMBU
+      .out
+      .alignment
+      .set { cdna_alignment }
     
     ch_genomes
       .join(
@@ -194,7 +199,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       EV_MODELER.out,
       BLAST.out.blast_table,
       ch_interproscan_results,
-      ch_ref_proteins.first()
+      ch_ref_proteins.first(),
+      ch_genomes,
+      cdna_alignment
     )
  }
 

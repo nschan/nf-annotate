@@ -121,7 +121,7 @@ process AGAT_FUNCTIONAL_ANNOTATION {
     -b ${blast_results} \\
     --db modified_${blast_reference} \\
     -i ${interpro_results} > ${meta}_functional.agat.out
-  head -n -1 ${meta}_functional.agat.out > 
+  head -n -1 ${meta}_functional.agat.out > ${meta}_functional.gff
   sed -i '1,/Formating output to GFF3/d' ${meta}_functional.gff
   """
 }

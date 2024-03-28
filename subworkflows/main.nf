@@ -337,9 +337,12 @@ workflow GET_R_GENES {
     }
 
     ALIGN(ch_aln)
-
+    ALIGN
+      .out
+      .set { alignment }
+      
     BAMBU(ch_bambu_in
-            .join(ALIGN.out))
+            .join(alignment))
 
     BAMBU
       .out
@@ -348,6 +351,7 @@ workflow GET_R_GENES {
 
   emit:
     bambu_gtf
+    alignment
 
  }
 
@@ -505,12 +509,24 @@ workflow EV_MODELER {
     blast_output // meta, tsv
     interpro_tsv // meta, tsv
     blast_reference // meta2, protein fasta
+    genomes // meta, fasta
+    alignments // meta, bam
   
   main:
     annotations
       .join(blast_output)
       .join(interpro_tsv)
       .set { annotation_and_function }
+    
     AGAT_FUNCTIONAL_ANNOTATION(annotation_and_function, blast_reference)
+
     AGAT_GFF2GTF(AGAT_FUNCTIONAL_ANNOTATION.out.gff_file)
+
+    genomes
+      .join(AGAT_GFF2GTF.out)
+      .join(alignments)
+      .set { bambu_in }
+    
+    BAMBU(bambu_in) //takes: tuple val(meta), path(fasta), path(gtf), path(bams)
+
  }
