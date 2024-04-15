@@ -7,7 +7,7 @@ process INTERPROSCAN_PFAM {
   tag "$meta"
   label 'process_high'
 
-  spack 'interproscan@5.66-98.0'
+  //spack 'interproscan@5.66-98.0'
 
   publishDir "${params.out}",
         mode: params.publish_dir_mode,
