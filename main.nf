@@ -19,9 +19,9 @@ include { AB_INITIO } from './subworkflows/main.nf'
 include { PASA } from './subworkflows/main.nf'
 include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
+include { TRANPOSONS } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
-
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
 
 log.info """\
@@ -180,9 +180,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
         .join(EV_MODELER
               .out
              )
-        .set { ch_evm_annotations }
+        .set { ch_evm_annotations } // tuple val(meta), path(fasta), path(gff)
 
-    GET_R_GENES(ch_evm_annotations) // tuple val(meta), path(fasta), path(gff)
+    GET_R_GENES(ch_evm_annotations) 
 
     GET_R_GENES
       .out
@@ -203,6 +203,8 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       ch_genomes,
       cdna_alignment
     )
+
+    TRANPOSONS(ch_evm_annotations)
  }
 
  workflow {

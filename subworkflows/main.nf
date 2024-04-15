@@ -81,6 +81,12 @@ BLAST
 include { MAKEBLASTDB } from '../modules/blast/makeblastdb/main.nf'
 include { BLASTP } from '../modules/blast/blastp/main.nf'
 
+/*
+EDTA
+*/
+include { AGAT_GFF2BED } from '../modules/agat/main'
+include { EDTA } from '../modules/edta/main'
+
 /* 
  ===========================================
  ===========================================
@@ -529,4 +535,40 @@ workflow EV_MODELER {
     
     BAMBU(bambu_in) //takes: tuple val(meta), path(fasta), path(gtf), path(bams)
 
+ }
+
+  /* 
+ ===========================================
+        Annotate transpososons
+ ===========================================
+ */
+
+ workflow TRANPOSONS {
+  take:
+    annotated_genome // meta, fasta, gff
+      
+  main:
+    
+    annotated_genome
+      .map { it -> [ it[0], it[1]] }
+      .set { genome }
+
+    annotated_genome
+      .map { it -> [ it[0], it[2]] }
+      .set { annotations }
+    
+    AGAT_GFF2BED(annotations)
+
+    AGAT_EXTRACT_TRANSCRIPTS(annotated_genome)
+
+    genome
+      .join(AGAT_GFF2BED.out)
+      .join(AGAT_EXTRACT_TRANSCRIPTS.out)
+      .set { edta_in }
+
+    EDTA(edta_in)
+
+    emit:
+      EDTA.out.transposon_annotations
+      EDTA.out.transposon_summary
  }

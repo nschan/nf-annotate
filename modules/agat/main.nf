@@ -149,3 +149,27 @@ process AGAT_GFF2GTF {
   -o ${gff.baseName}.gtf 
   """
 }
+process AGAT_GFF2BED {
+  tag "$meta"
+  label 'process_medium'
+
+  publishDir "${params.out}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename,
+                                        options:params.options, 
+                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
+                                        publish_id:meta) }
+  input:
+      tuple val(meta), path(gff)
+  
+  output:
+      tuple val(meta), path("*.bed"), emit: bed_file
+  
+  script:
+      def prefix = task.ext.prefix ?: "${meta}"
+  """
+  agat_convert_sp_gff2bed.pl \\
+  --gff ${gff} \\
+  -o ${gff.baseName}.bed 
+  """
+}
