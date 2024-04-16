@@ -88,6 +88,16 @@ Since [`nf-evmodeler`](https://gitlab.lrz.de/beckerlab/nf-evmodeler) has been eq
 
 ## Interproscan
 
+Interproscan is run from the interproscan docker image.
+The data needs to be downloaded separately and mounted into /opt/interproscan/data (see biohpc_gen.config, https://hub.docker.com/r/interpro/interproscan).
+After downloading a new data-release, the container should be run once interactively to index the modles (https://interproscan-docs.readthedocs.io/en/latest/HowToDownload.html#index-hmm-models):
+
+```bash
+python3 setup.py interproscan.properties
+```
+
+> Outdated information below
+
 The main challenge in this whole process is running `interproscan`. On `biohpc_gen` I am using a spack module to run this, a container would also be an option.
 If you would like to run this, you will need to either create a `spack` module / `module` module or a container that contains `interproscan` and the several GB of data required to run it.
 This will create a container of ~10 GB, which does not fit into the container registry I am using. Most `interproscan` containers I came across come without this data and it has to be added in somehow (either through mounting or by adding it into the container).

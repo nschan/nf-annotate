@@ -7,8 +7,6 @@ process INTERPROSCAN_PFAM {
   tag "$meta"
   label 'process_high'
 
-  //spack 'interproscan@5.66-98.0'
-
   publishDir "${params.out}",
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename,
@@ -25,7 +23,7 @@ process INTERPROSCAN_PFAM {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-  interproscan.sh \\
+  /opt/interproscan/interproscan.sh \\
      -f TSV,GFF3 \\
      -appl Pfam \\
      -cpu $task.cpus \\
@@ -39,8 +37,6 @@ process INTERPROSCAN_PFAM {
 process INTERPROSCAN {
   tag "$meta"
   label 'process_high'
-
-  spack 'interproscan@5.66-98.0'
 
   publishDir "${params.out}",
         mode: params.publish_dir_mode,
@@ -58,7 +54,7 @@ process INTERPROSCAN {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-  interproscan.sh \\
+  /opt/interproscan/interproscan.sh \\
      -f TSV,GFF3 \\
      -exclappl AntiFam \\
      -cpu $task.cpus \\
@@ -71,8 +67,6 @@ process INTERPROSCAN {
 process INTERPROSCAN_EXTENDED {
   tag "$meta"
   label 'process_high'
-
-  spack 'interproscan@5.66-98.0'
 
   publishDir "${params.out}",
         mode: params.publish_dir_mode,
@@ -90,7 +84,7 @@ process INTERPROSCAN_EXTENDED {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-  interproscan.sh \\
+  /opt/interproscan/interproscan.sh \\
      -app TIGRFAM,SFLD,SUPERFAMILY,PANTHER,Gene3D,Hamap,ProSiteProfiles,SMART,CDD,PRINTS,PIRSR,Pfam \\
      -f TSV,GFF3 \\
      -cpu $task.cpus \\
@@ -103,8 +97,6 @@ process INTERPROSCAN_EXTENDED {
 process INTERPROSCAN_SUPERFAMILY {
   tag "$meta"
   label 'process_high'
-
-  spack 'interproscan@5.66-98.0'
 
   publishDir "${params.out}",
         mode: params.publish_dir_mode,
@@ -121,7 +113,7 @@ process INTERPROSCAN_SUPERFAMILY {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-  interproscan.sh \\
+  /opt/interproscan/interproscan.sh \\
     -f TSV \\
     -cpu $task.cpus \\
     -app SUPERFAMILY \\

@@ -111,6 +111,8 @@ Niklas Schandry                                  niklas@bio.lmu.de              
            )
       .set { ch_hrp_in }
 
+    AB_INITIO(ch_genomes)
+
     HRP(ch_hrp_in)
    
     HRP
@@ -124,8 +126,6 @@ Niklas Schandry                                  niklas@bio.lmu.de              
             .map { it -> [it.sample, it.reads] } 
             ) 
       .set { ch_bambu } // sample, genome_assembly, liftoff, reads 
-
-    AB_INITIO(ch_genomes)
 
     RUN_BAMBU(ch_bambu)
 
