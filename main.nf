@@ -7,6 +7,7 @@ params.min_contig_length = 5000
 params.exclude_pattern = "ATMG"
 params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
+params.r_genes = true
 params.out = './results'
 params.nevm = 10
 
@@ -49,6 +50,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
      protein ref     : 
       ${params.reference_proteins}
      exlude_pattern  : ${params.exclude_pattern}
+     find R genes    : ${params.r_genes}
    outdir            : ${params.out}
    conda             : ${params.enable_conda}
 
@@ -102,23 +104,35 @@ Niklas Schandry                                  niklas@bio.lmu.de              
                             .out
                             .contig_lengths
                           )
-                        )
-    ch_genomes
-      .join(
-        PREPARE_ANNOTATIONS
-        .out
-        .annotation_subset
-           )
-      .set { ch_hrp_in }
-
+                        )    
+    
     AB_INITIO(ch_genomes)
 
-    HRP(ch_hrp_in)
+    if(!params.r_genes) {
+      AGAT_GFF2GTF(PREPARE_ANNOTATIONS
+        .out
+        .annotation_subset)
+      AGAT_GFF2GTF
+        .out
+        .set { ch_annotation_subset }
+    }
+
+    if(params.r_genes) {
+      ch_genomes
+        .join(
+          PREPARE_ANNOTATIONS
+          .out
+          .annotation_subset
+             )
+        .set { ch_hrp_in }
+
+      HRP(ch_hrp_in)
    
-    HRP
-      .out
-      .merged_gtf
-      .set { ch_annotation_subset }
+      HRP
+        .out
+        .merged_gtf
+        .set { ch_annotation_subset }
+    }
 
     ch_genomes
       .join(ch_annotation_subset)
@@ -181,7 +195,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
               .out
              )
         .set { ch_evm_annotations } // tuple val(meta), path(fasta), path(gff)
-
+        
     GET_R_GENES(ch_evm_annotations) 
 
     GET_R_GENES

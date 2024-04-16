@@ -248,17 +248,16 @@ workflow GET_R_GENES {
         .protein_tsv
         .set { pfam_out }
       
-      FIND_R_GENES(INTERPROSCAN_PFAM.out.protein_tsv)
-      FIND_R_GENES
-        .out
-        .full_length_tsv
-        .set { r_gene_gff }
-
-    emit: 
-      r_gene_gff
-      pfam_out
-
+      if(params.r_genes) {
+        FIND_R_GENES(INTERPROSCAN_PFAM.out.protein_tsv)
+        FIND_R_GENES
+          .out
+          .full_length_tsv
+          .set { r_gene_gff }
+      }
       
+    emit: 
+      pfam_out
 }
 
  workflow PREPARE_GENOMES {

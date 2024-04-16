@@ -23,10 +23,6 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
                           -profile biohpc_gen
 ```
 
-> Note: HRP makes use of interproscan as a module, since the container is gigantic.
-
-> Note: Some containers are hosted the LRZ gitlab registry. This requires authentication, currently not handled by nextflow. These containers need to be pre-pulled.
-
 # Parameters
 
 | Parameter | Effect |
@@ -36,7 +32,8 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 | `--samplesheet` | Path to samplesheet |
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
 | `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
-| `--min_contig_length` | minimum length of contigs to keep (default: 5000) |
+| `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
+| `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
 | `--out` | Results directory, default: `'./results'` |
 
 # Samplesheet
@@ -66,10 +63,11 @@ This pipeline will run the following subworkflows:
     - `AUGUSTUS` https://github.com/Gaius-Augustus/Augustus (kind of paralellized)
     - `MINIPROT` https://github.com/lh3/miniprot
   * `BAMBU`: Run `porechop` (optional) on cDNA reads and align via `minimap2` in `splice:hq` mode. Then run `bambu`
-  * `PASA`: Run the PASA pipeline on bambu output (https://github.com/PASApipeline/PASApipeline/wiki). This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
-  * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through Evidence Modeler (https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of difficult, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
+  * `PASA`: Run the [PASA pipeline](https://github.com/PASApipeline/PASApipeline/wiki) on bambu output . This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
+  * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of tricky, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
-  * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`. Produces protein fasta. Creates `.gff` and `.gtf` outputs. Also quantifies transcripts via `bambu`
+  * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`. Produces protein fasta. Creates `.gff` and `.gtf` outputs. Also quantifies transcripts via `bambu`.
+  * `TRANSPOSONS`: Annotate transposons using `EDTA`
 
 The weights for EVidenceModeler are defined in `assets/weights.tsv`
 
@@ -105,7 +103,7 @@ This will create a container of ~10 GB, which does not fit into the container re
 ## genblastG
 
 `genblastG` has been abandoned for several years. Getting it into a container was a bit annoying, and even with the container the module is a bit akward.
-This module sometimes crashes, I do not know why, usually retrying solves the problem.
+This process sometimes crashes, I do not know why. Usually retrying solves the problem.
 
 ## BLAST / AGAT_FUNCTIONAL_ANNOTATION
 
