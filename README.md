@@ -102,8 +102,7 @@ This will create a container of ~10 GB, which does not fit into the container re
 
 ## genblastG
 
-`genblastG` has been abandoned for several years. Getting it into a container was a bit annoying, and even with the container the module is a bit akward.
-This process sometimes crashes, I do not know why. Usually retrying solves the problem.
+`genblastG` was used in the original HRP publication. `genblastG` produces too many errors to be reasonably used for production tools, `miniprot` is replacing `genblastG` in this pipeline.
 
 ## BLAST / AGAT_FUNCTIONAL_ANNOTATION
 

@@ -6,7 +6,7 @@
 
 include { AGAT_FILTER_BY_LENGTH } from '../modules/HRP/agat/main'
 include { AGAT_EXTRACT_PROTEINS } from '../modules/HRP/agat/main'
-include { AGAT_EXTRACT_NLR as AGAT_EXTRACT_MINIPROT_NLR } from '../modules/HRP/agat/main'
+include { AGAT_EXTRACT_MINIPROT_NLR } from '../modules/HRP/agat/main'
 include { AGAT_EXTRACT_NLR } from '../modules/HRP/agat/main'
 include { AGAT_COMPLEMENT } from '../modules/HRP/agat/main'
 include { MEME } from '../modules/HRP/memesuite/main'
