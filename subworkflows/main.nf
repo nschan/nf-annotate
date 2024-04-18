@@ -6,6 +6,7 @@
 
 include { AGAT_FILTER_BY_LENGTH } from '../modules/HRP/agat/main'
 include { AGAT_EXTRACT_PROTEINS } from '../modules/HRP/agat/main'
+include { AGAT_EXTRACT_NLR as AGAT_EXTRACT_MINIPROT_NLR } from '../modules/HRP/agat/main'
 include { AGAT_EXTRACT_NLR } from '../modules/HRP/agat/main'
 include { AGAT_COMPLEMENT } from '../modules/HRP/agat/main'
 include { MEME } from '../modules/HRP/memesuite/main'
@@ -23,6 +24,7 @@ include { SEQTK_SUBSET_RPS } from '../modules/HRP/seqtk/main'
 include { SEQTK_SUBSET_FL } from '../modules/HRP/seqtk/main'
 include { SEQTK_SUBSET_CANDIDATES } from '../modules/HRP/seqtk/main'
 include { GENBLAST_G } from '../modules/HRP/genblastG/main'
+include { MINIPROT_HRP } from '../modules/HRP/miniprot/main'
 include { SEQKIT_GET_LENGTH } from '../modules/HRP/seqkit/main'
 include { GET_R_GENE_GFF } from '../modules/HRP/local/main'
 
@@ -172,22 +174,43 @@ workflow HRP {
                         .out
                         .full_length_tsv)
                       )
+
       // Genblast
-      genome
-        .join(SEQTK_SUBSET_FL.out)
-        .set { genblast_in }
+      //genome
+      //  .join(SEQTK_SUBSET_FL.out)
+      //  .set { genblast_in }
 
-      GENBLAST_G(genblast_in)
+      //GENBLAST_G(genblast_in)
 
-      SEQKIT_GET_LENGTH(GENBLAST_G
-                        .out
-                        .genblast_pro)
+      //SEQKIT_GET_LENGTH(GENBLAST_G
+      //                  .out
+      //                  .genblast_pro)
 
       // Step 8.1
-      AGAT_FILTER_BY_LENGTH(GENBLAST_G
-                              .out
-                              .genblast_gff)
+      //AGAT_FILTER_BY_LENGTH(GENBLAST_G
+      //                        .out
+      //                       .genblast_gff)
+
+      // Replacing genblast with miniprot
+      genome
+        .join(SEQTK_SUBSET_FL.out)
+        .set { miniprot_in }
   
+      MINIPROT_HRP(miniprot_in) // emits gff
+
+      AGAT_FILTER_BY_LENGTH(MINIPROT_HRP
+                            .out
+                            .miniprot_nlrs)
+
+      genome
+        .join(MINIPROT_HRP.out.miniprot_nlrs)
+        .set { miniprot_nlr_to_extract }
+      // Create proteins from gff
+      AGAT_EXTRACT_MINIPROT_NLR(miniprot_nlr_to_extract)
+
+      // Get lengths
+      SEQKIT_GET_LENGTH(AGAT_EXTRACT_MINIPROT_NLR.out.extracted_nlrs)
+
       // Step 8.2
       BEDTOOLS_CLUSTER(AGAT_FILTER_BY_LENGTH
                         .out
