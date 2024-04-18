@@ -81,6 +81,40 @@ All processess will emit their outputs to results.
 
 This pipeline performs a number of steps specifically aimed at discovery and annotation of NLR genes.
 
+# Graph
+
+```mermaid
+graph TD;
+    gfasta[Genome Fasta] --> lfilt[Length filter];
+    lfilt --> AUGSTUS;
+    lfilt --> SNAP;
+    lfilt --> MINIPROT;
+    gfasta --> pseqs[Protein sequences];
+    ggff[Genome GFF] --> pseqs;
+    pseqs --> HRP
+    AUGUSTUS --> EvidenceModeler;
+    SNAP --> EvidenceModeler;
+    MINIPROT --> EvidenceModeler;
+    HRP --> EvidenceModeler;
+    cDNA Fastq --> Porechop;
+    Porechop --> minimap2;
+    gfasta --> minimap2;
+    ggff --> bambu transcripts;
+    minimap2 --> batrans[bambu transcripts];
+    batrans --> pasa;
+    pasa --> EvidenceModeler;
+    minimp2 --> bacounts[bambu counts];
+    EvidenceModeler --> bacounts;
+    bacounts --> tsv_count[gene count tsv];
+    EvidenceModeler --> BLASTp;
+    EvidenceModeler --> pfam[Interproscan Pfam];
+    BLASTp --> func[Functional annotation];
+    pfam --> func;
+    func --> gff_anno[Annotation GFF];
+    pfam --> rgene[R-Gene extraction];
+    rgene --> r_tsv[R-Gene TSV];
+```
+
 # Known issues & edge case handling
 
 ## Interproscan
