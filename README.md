@@ -42,22 +42,27 @@ graph TD;
     HRP --> EvidenceModeler;
     pasa --> EvidenceModeler;
     end
-    subgraph Gene Counts
-    minimap2 --> bacounts[bambu counts];
-    EvidenceModeler --> bacounts;
+    EvidenceModeler --> evGFF>EvidenceModeler GFF]
+    subgraph counts[Gene Counts]
+    bacounts[bambu counts]
     end
-    bacounts --> tsv_count>Gene Count TSV];
+    subgraph Rgene[R-Gene extraction]
+    rgene[R-Gene filter];
+    end
+    pfam --> Rgene
+    Rgene --> r_tsv>R-Gene TSV];
+    minimap2 --> counts;
+    EvidenceModeler --> counts;
+    counts --> tsv_count>Gene Count TSV];
     subgraph Functional annotation
     EvidenceModeler --> BLASTp;
     EvidenceModeler --> pfam[Interproscan Pfam];
-    BLASTp --> func[Functional annotation];
+    BLASTp --> func[Merge];
     pfam --> func;
     end
+    evGFF --> func
     func --> gff_anno>Annotation GFF];
-    subgraph R-Gene extraction
-    pfam --> rgene[R-Gene filter];
-    end
-    rgene --> r_tsv>R-Gene TSV];
+
 ```
 
 Graph for HRP
