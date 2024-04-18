@@ -74,10 +74,10 @@ graph TD;
   pfam --> rgdomains[R-Gene Identification based on Domains]
   superfam --> rgdomains
   rgdomains --> miniprot[Discovery based on known R-Genes miniprot]
-  miniprot --> seqs[R-Gene sequences]
+  miniprot --> seqs>R-Gene sequences]
   miniprot --> rgff[R-Gene gff]
-  ingff --> mergegff[Merged GFF]
-  rgff --> mergegff[Merged GFF]
+  ingff --> mergegff>Merged GFF]
+  rgff --> mergegff
 ```
 
 # Tubemap
