@@ -17,16 +17,18 @@ graph TD;
     subgraph Prepare Genome
     gfasta[Genome Fasta] --> lfilt[Length filter];
     gfasta --> pseqs[Protein sequences];
-    ggff[Genome GFF] --> pseqs;
+    ggff[Inital genome GFF] --> pseqs;
     end
     subgraph Ab initio annotation
     lfilt --> AUGUSTUS;
     lfilt --> SNAP;
     lfilt --> MINIPROT;
     end
-    subgraph R-Gene prediction
-    pseqs --> HRP
+    subgraph hrp[R-Gene prediction]
+    HRP
     end
+    pseqs --> hrp
+    gfasta --> hrp
     subgraph Transcript discovery
     cDNA[cDNA Fastq] --> Porechop;
     Porechop --> minimap2;
@@ -62,7 +64,6 @@ graph TD;
     end
     evGFF --> func
     func --> gff_anno>Annotation GFF];
-
 ```
 
 Graph for HRP
@@ -78,7 +79,7 @@ graph TD;
   mast --> superfam[Interproscan Superfamily]
   pfam --> rgdomains[R-Gene Identification based on Domains]
   superfam --> rgdomains
-  rgdomains --> miniprot[Discovery based on known R-Genes miniprot]
+  rgdomains --> miniprot[miniprot: discovery based on known R-genes]
   miniprot --> seqs>R-Gene sequences]
   miniprot --> rgff[R-Gene gff]
   ingff --> mergegff>Merged GFF]
