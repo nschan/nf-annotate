@@ -95,8 +95,9 @@ process AGAT_EXTRACT_NLR {
       def prefix = task.ext.prefix ?: "${meta}"
   """
   cat ${genome_fasta} | fold > ${genome_fasta.baseName}.fold.fasta
+  awk -F'\t' -v OFS='\t' '!(\$8=="0,1") {print \$0}' ${nlr_gff} > filtered_${nlr_gff}
   agat_sp_extract_sequences.pl \\
-       -g ${nlr_gff} \\
+       -g filtered_${nlr_gff} \\
        -f ${genome_fasta.baseName}.fold.fasta \\
        -p \\
        -t transcript \\

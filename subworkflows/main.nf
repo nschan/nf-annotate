@@ -23,7 +23,6 @@ include { FILTER_R_GENES_SINGLE_INPUT as FIND_R_GENES } from '../modules/HRP/loc
 include { SEQTK_SUBSET_RPS } from '../modules/HRP/seqtk/main'
 include { SEQTK_SUBSET_FL } from '../modules/HRP/seqtk/main'
 include { SEQTK_SUBSET_CANDIDATES } from '../modules/HRP/seqtk/main'
-include { GENBLAST_G } from '../modules/HRP/genblastG/main'
 include { MINIPROT_HRP } from '../modules/HRP/miniprot/main'
 include { SEQKIT_GET_LENGTH } from '../modules/HRP/seqkit/main'
 include { GET_R_GENE_GFF } from '../modules/HRP/local/main'
@@ -175,22 +174,6 @@ workflow HRP {
                         .full_length_tsv)
                       )
 
-      // Genblast
-      //genome
-      //  .join(SEQTK_SUBSET_FL.out)
-      //  .set { genblast_in }
-
-      //GENBLAST_G(genblast_in)
-
-      //SEQKIT_GET_LENGTH(GENBLAST_G
-      //                  .out
-      //                  .genblast_pro)
-
-      // Step 8.1
-      //AGAT_FILTER_BY_LENGTH(GENBLAST_G
-      //                        .out
-      //                       .genblast_gff)
-
       // Replacing genblast with miniprot
       genome
         .join(SEQTK_SUBSET_FL.out)
@@ -240,8 +223,7 @@ workflow HRP {
                         .join(GET_R_GENE_GFF
                                 .out
                                 .r_genes_merged_gff))
-      //   Interproscan of NLR-Candidates
-      // INTERPROSCAN(AGAT_EXTRACT_NLR.out)
+
       AGAT_COMPLEMENT
         .out
         .merged_gff

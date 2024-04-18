@@ -72,8 +72,7 @@ process BEDTOOLS_NR_CLUSTERS {
       def prefix = task.ext.prefix ?: "${meta}"
   """
 
-  join -1 1 -2 1 -o 1.1,1.2,2.5 <( sort -bk1 ${clusters}) <(sort -bk1 ${length_estimates}) | sort -bk2,2 -bk3,3 -nr | sort -uk2,2 | cut -f1 > ${prefix}-R-gene_ID_list.txt
-  sed -i 's@ @    @' ${prefix}-R-gene_ID_list.txt
+  join -1 1 -2 1 -o 1.1,1.2,2.5 <( sort -bk1 ${clusters}) <(sort -bk1 ${length_estimates}) | sort -bk2,2 -bk3,3 -nr | sort -uk2,2 | cut -f1 -d ' ' > ${prefix}-R-gene_ID_list.txt
   """
 }
 
