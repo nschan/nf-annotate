@@ -83,10 +83,12 @@ This pipeline performs a number of steps specifically aimed at discovery and ann
 
 # Graph
 
+General Graph
+
 ```mermaid
 graph TD;
     gfasta[Genome Fasta] --> lfilt[Length filter];
-    lfilt --> AUGSTUS;
+    lfilt --> AUGUSTUS;
     lfilt --> SNAP;
     lfilt --> MINIPROT;
     gfasta --> pseqs[Protein sequences];
@@ -96,16 +98,16 @@ graph TD;
     SNAP --> EvidenceModeler;
     MINIPROT --> EvidenceModeler;
     HRP --> EvidenceModeler;
-    cDNA Fastq --> Porechop;
+    cDNA[cDNA Fastq] --> Porechop;
     Porechop --> minimap2;
     gfasta --> minimap2;
-    ggff --> bambu transcripts;
-    minimap2 --> batrans[bambu transcripts];
+    ggff --> batrans[bambu transcripts]
+    minimap2 --> batrans;
     batrans --> pasa;
     pasa --> EvidenceModeler;
-    minimp2 --> bacounts[bambu counts];
+    minimap2 --> bacounts[bambu counts];
     EvidenceModeler --> bacounts;
-    bacounts --> tsv_count[gene count tsv];
+    bacounts --> tsv_count[Gene Count TSV];
     EvidenceModeler --> BLASTp;
     EvidenceModeler --> pfam[Interproscan Pfam];
     BLASTp --> func[Functional annotation];
@@ -113,6 +115,26 @@ graph TD;
     func --> gff_anno[Annotation GFF];
     pfam --> rgene[R-Gene extraction];
     rgene --> r_tsv[R-Gene TSV];
+```
+
+Graph for HRP
+
+```mermaid
+graph TD;
+  fasta[Genome Fasta] --> protseqs[Protein Sequences]
+  ingff[Genome GFF] --> protseqs[Protein Sequences]
+  protseqs --> pfam[Interproscan Pfam]
+  pfam --> nbarc[NB-LRR extraction]
+  nbarc --> meme[MEME]
+  meme --> mast[MAST]
+  mast --> superfam[Interproscan Superfamily]
+  pfam --> rgdomains[R-Gene Identification based on Domains]
+  superfam --> rgdomains
+  rgdomains --> miniprot[Discovery based on known R-Genes miniprot]
+  miniprot --> seqs[R-Gene sequences]
+  miniprot --> rgff[R-Gene gff]
+  ingff --> mergegff[Merged GFF]
+  rgff --> mergegff[Merged GFF]
 ```
 
 # Known issues & edge case handling
