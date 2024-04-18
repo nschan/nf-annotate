@@ -87,34 +87,50 @@ General Graph
 
 ```mermaid
 graph TD;
+    subgraph Prepare Genome
     gfasta[Genome Fasta] --> lfilt[Length filter];
+    gfasta --> pseqs[Protein sequences];
+    ggff[Genome GFF] --> pseqs;
+    end
+    subgraph Ab initio annotation
     lfilt --> AUGUSTUS;
     lfilt --> SNAP;
     lfilt --> MINIPROT;
-    gfasta --> pseqs[Protein sequences];
-    ggff[Genome GFF] --> pseqs;
+    end
+    subgraph R-Gene prediction
     pseqs --> HRP
-    AUGUSTUS --> EvidenceModeler;
-    SNAP --> EvidenceModeler;
-    MINIPROT --> EvidenceModeler;
-    HRP --> EvidenceModeler;
+    end
+    subgraph Transcript discovery
     cDNA[cDNA Fastq] --> Porechop;
     Porechop --> minimap2;
     gfasta --> minimap2;
     ggff --> batrans[bambu transcripts]
     minimap2 --> batrans;
     batrans --> pasa;
+    end
+    subgraph Annotation consolidation
+    AUGUSTUS --> EvidenceModeler{EvidenceModeler};
+    SNAP --> EvidenceModeler;
+    MINIPROT --> EvidenceModeler;
+    HRP --> EvidenceModeler;
     pasa --> EvidenceModeler;
+    end
+    subgraph Gene Counts
     minimap2 --> bacounts[bambu counts];
     EvidenceModeler --> bacounts;
-    bacounts --> tsv_count[Gene Count TSV];
+    end
+    bacounts --> tsv_count>Gene Count TSV];
+    subgraph Functional annotation
     EvidenceModeler --> BLASTp;
     EvidenceModeler --> pfam[Interproscan Pfam];
     BLASTp --> func[Functional annotation];
     pfam --> func;
-    func --> gff_anno[Annotation GFF];
-    pfam --> rgene[R-Gene extraction];
-    rgene --> r_tsv[R-Gene TSV];
+    end
+    func --> gff_anno>Annotation GFF];
+    subgraph R-Gene extraction
+    pfam --> rgene[R-Gene filter];
+    end
+    rgene --> r_tsv>R-Gene TSV];
 ```
 
 Graph for HRP
