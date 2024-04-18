@@ -15,11 +15,11 @@ General Graph
 ```mermaid
 graph TD;
     subgraph Prepare Genome
-    gfasta[Genome Fasta] --> lfilt[Length filter];
+    gfasta>Genome Fasta] --> lfilt[Length filter];
     gfasta --> pseqs[Protein sequences];
-    ggff[Inital genome GFF] --> pseqs;
+    ggff>Inital genome GFF] --> pseqs;
     end
-    subgraph Ab initio annotation
+    subgraph abinitio[Ab initio annotation]
     lfilt --> AUGUSTUS;
     lfilt --> SNAP;
     lfilt --> MINIPROT;
@@ -30,7 +30,7 @@ graph TD;
     pseqs --> hrp
     gfasta --> hrp
     subgraph Transcript discovery
-    cDNA[cDNA Fastq] --> Porechop;
+    cDNA>cDNA Fastq] --> Porechop;
     Porechop --> minimap2;
     gfasta --> minimap2;
     ggff --> batrans[bambu transcripts]
@@ -70,8 +70,8 @@ Graph for HRP
 
 ```mermaid
 graph TD;
-  fasta[Genome Fasta] --> protseqs[Protein Sequences]
-  ingff[Genome GFF] --> protseqs[Protein Sequences]
+  fasta>Genome Fasta] --> protseqs[Protein Sequences]
+  ingff>Genome GFF] --> protseqs[Protein Sequences]
   protseqs --> pfam[Interproscan Pfam]
   pfam --> nbarc[NB-LRR extraction]
   nbarc --> meme[MEME]
