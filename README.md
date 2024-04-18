@@ -10,6 +10,78 @@ It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and *
 
 # Graph
 
+General Graph
+
+```mermaid
+graph TD;
+    subgraph Prepare Genome
+    gfasta[Genome Fasta] --> lfilt[Length filter];
+    gfasta --> pseqs[Protein sequences];
+    ggff[Genome GFF] --> pseqs;
+    end
+    subgraph Ab initio annotation
+    lfilt --> AUGUSTUS;
+    lfilt --> SNAP;
+    lfilt --> MINIPROT;
+    end
+    subgraph R-Gene prediction
+    pseqs --> HRP
+    end
+    subgraph Transcript discovery
+    cDNA[cDNA Fastq] --> Porechop;
+    Porechop --> minimap2;
+    gfasta --> minimap2;
+    ggff --> batrans[bambu transcripts]
+    minimap2 --> batrans;
+    batrans --> pasa;
+    end
+    subgraph Annotation consolidation
+    AUGUSTUS --> EvidenceModeler{EvidenceModeler};
+    SNAP --> EvidenceModeler;
+    MINIPROT --> EvidenceModeler;
+    HRP --> EvidenceModeler;
+    pasa --> EvidenceModeler;
+    end
+    subgraph Gene Counts
+    minimap2 --> bacounts[bambu counts];
+    EvidenceModeler --> bacounts;
+    end
+    bacounts --> tsv_count>Gene Count TSV];
+    subgraph Functional annotation
+    EvidenceModeler --> BLASTp;
+    EvidenceModeler --> pfam[Interproscan Pfam];
+    BLASTp --> func[Functional annotation];
+    pfam --> func;
+    end
+    func --> gff_anno>Annotation GFF];
+    subgraph R-Gene extraction
+    pfam --> rgene[R-Gene filter];
+    end
+    rgene --> r_tsv>R-Gene TSV];
+```
+
+Graph for HRP
+
+```mermaid
+graph TD;
+  fasta[Genome Fasta] --> protseqs[Protein Sequences]
+  ingff[Genome GFF] --> protseqs[Protein Sequences]
+  protseqs --> pfam[Interproscan Pfam]
+  pfam --> nbarc[NB-LRR extraction]
+  nbarc --> meme[MEME]
+  meme --> mast[MAST]
+  mast --> superfam[Interproscan Superfamily]
+  pfam --> rgdomains[R-Gene Identification based on Domains]
+  superfam --> rgdomains
+  rgdomains --> miniprot[Discovery based on known R-Genes miniprot]
+  miniprot --> seqs[R-Gene sequences]
+  miniprot --> rgff[R-Gene gff]
+  ingff --> mergegff[Merged GFF]
+  rgff --> mergegff[Merged GFF]
+```
+
+# Tubemap
+
 ![Tubemap](nf-arannotate.tubes.png)
 
 # Usage
@@ -81,77 +153,6 @@ All processess will emit their outputs to results.
 
 This pipeline performs a number of steps specifically aimed at discovery and annotation of NLR genes.
 
-# Graph
-
-General Graph
-
-```mermaid
-graph TD;
-    subgraph Prepare Genome
-    gfasta[Genome Fasta] --> lfilt[Length filter];
-    gfasta --> pseqs[Protein sequences];
-    ggff[Genome GFF] --> pseqs;
-    end
-    subgraph Ab initio annotation
-    lfilt --> AUGUSTUS;
-    lfilt --> SNAP;
-    lfilt --> MINIPROT;
-    end
-    subgraph R-Gene prediction
-    pseqs --> HRP
-    end
-    subgraph Transcript discovery
-    cDNA[cDNA Fastq] --> Porechop;
-    Porechop --> minimap2;
-    gfasta --> minimap2;
-    ggff --> batrans[bambu transcripts]
-    minimap2 --> batrans;
-    batrans --> pasa;
-    end
-    subgraph Annotation consolidation
-    AUGUSTUS --> EvidenceModeler{EvidenceModeler};
-    SNAP --> EvidenceModeler;
-    MINIPROT --> EvidenceModeler;
-    HRP --> EvidenceModeler;
-    pasa --> EvidenceModeler;
-    end
-    subgraph Gene Counts
-    minimap2 --> bacounts[bambu counts];
-    EvidenceModeler --> bacounts;
-    end
-    bacounts --> tsv_count>Gene Count TSV];
-    subgraph Functional annotation
-    EvidenceModeler --> BLASTp;
-    EvidenceModeler --> pfam[Interproscan Pfam];
-    BLASTp --> func[Functional annotation];
-    pfam --> func;
-    end
-    func --> gff_anno>Annotation GFF];
-    subgraph R-Gene extraction
-    pfam --> rgene[R-Gene filter];
-    end
-    rgene --> r_tsv>R-Gene TSV];
-```
-
-Graph for HRP
-
-```mermaid
-graph TD;
-  fasta[Genome Fasta] --> protseqs[Protein Sequences]
-  ingff[Genome GFF] --> protseqs[Protein Sequences]
-  protseqs --> pfam[Interproscan Pfam]
-  pfam --> nbarc[NB-LRR extraction]
-  nbarc --> meme[MEME]
-  meme --> mast[MAST]
-  mast --> superfam[Interproscan Superfamily]
-  pfam --> rgdomains[R-Gene Identification based on Domains]
-  superfam --> rgdomains
-  rgdomains --> miniprot[Discovery based on known R-Genes miniprot]
-  miniprot --> seqs[R-Gene sequences]
-  miniprot --> rgff[R-Gene gff]
-  ingff --> mergegff[Merged GFF]
-  rgff --> mergegff[Merged GFF]
-```
 
 # Known issues & edge case handling
 
