@@ -158,9 +158,10 @@ process AGAT_COMPLEMENT {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
+  awk -F'\t' -v OFS='\t' '!(\$8=="0,1" || \$8=="0,2") {print \$0}' ${nlr_gff} > filtered_${nlr_gff}
   agat_sp_complement_annotations.pl \\
     --ref ${ref_gff} \\
-    --add ${nlr_gff} \\
+    --add filtered_${nlr_gff} \\
     --out ${meta}_liftoff_nlr_merge.gff  
     agat_convert_sp_gff2gtf.pl \\
     --gff ${meta}_liftoff_nlr_merge.gff   \\
