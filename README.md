@@ -20,6 +20,7 @@ graph TD;
     gfasta --> pseqs[Protein sequences];
     ggff>Inital genome GFF] --> pseqs;
     end
+    ggff --> alnshort
     subgraph abinitio[Ab initio annotation]
     lfilt --> AUGUSTUS;
     lfilt --> SNAP;
