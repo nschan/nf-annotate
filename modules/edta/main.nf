@@ -15,7 +15,7 @@ process EDTA {
                                         publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
                                         publish_id:meta) }
     input:
-        tuple val(meta), path(genome_fasta), path(cds_fasta), path(bed)
+        tuple val(meta), path(genome_fasta), path(bed), path(cds_fasta)
 
     output:
         tuple val(meta), path("*mod.EDTA.TEanno.gff3"), emit: transposon_annotations
@@ -27,12 +27,14 @@ process EDTA {
 
     script:
         """
-        perl EDTA.pl \\
+        EDTA.pl \\
             --genome $genome_fasta \\
             --cds $cds_fasta \\
             --exclude $bed \\
             --species others \\
             --anno 1 \\
+            --force 1 \\
             -t $task.cpus
+        mv ${genome_fasta}.mod.EDTA.raw/* .
         """
 }

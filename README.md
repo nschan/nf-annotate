@@ -63,7 +63,12 @@ graph TD;
     pfam --> func;
     end
     evGFF --> func
-    func --> gff_anno>Annotation GFF];
+    func --> gff_anno>Annotation GFF]
+    subgraph Transposon[Transposon annotation]
+    edta[EDTA]
+    end
+    evGFF --> Transposon
+    Transposon --> tranposonGFF>Transposon GFF]
 ```
 
 Graph for HRP

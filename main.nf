@@ -15,8 +15,9 @@ include { HRP } from './subworkflows/main.nf'
 include { GET_R_GENES } from './subworkflows/main.nf'
 include { PREPARE_GENOMES } from './subworkflows/main.nf'
 include { PREPARE_ANNOTATIONS } from './subworkflows/main.nf'
-include { RUN_BAMBU } from './subworkflows/main.nf'
 include { AB_INITIO } from './subworkflows/main.nf'
+include { RUN_BAMBU } from './subworkflows/main.nf'
+include { RUN_TRINITY } from './subworkflows/main.nf'
 include { PASA } from './subworkflows/main.nf'
 include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
@@ -141,6 +142,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
             ) 
       .set { ch_bambu } // sample, genome_assembly, liftoff, reads 
 
+    // Transcript discovery
+    // long reads
+    if(!params.short_reads) {
     RUN_BAMBU(ch_bambu)
 
     RUN_BAMBU
@@ -154,9 +158,18 @@ Niklas Schandry                                  niklas@bio.lmu.de              
         .out
         .bambu_gtf
         )
-      .set { ch_genomes_bambu }
+      .set { transcripts }
+    }
+    // short reads
+    if(params.short_reads) {
+      RUN_TRINITY(ch_samples)
+      RUN_TRINITY
+        .out
+        .set { transcripts }
+    }
+
     
-    PASA(ch_genomes, ch_genomes_bambu)
+    PASA(ch_genomes, transcripts)
     
     AGAT_GXF2GFF(
       ch_annotation_subset

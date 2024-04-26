@@ -61,7 +61,13 @@ Bambu
 include { ALIGN_TO_BAM as ALIGN} from '../modules/align/main.nf'
 include { BAMBU } from '../modules/bambu/main'
 
-
+/*
+Trinity
+*/
+include { TRIMGALORE } from '../modules/trimgalore/main.nf'
+include { ALIGN as MAP } from '../modules/star/main.nf'
+include { GENOMEGENERATE } from '../modules/star/main.nf'
+include { TRINITY } from '../modules/trinity/main.nf'
 /*
 PASA
 */
@@ -401,7 +407,103 @@ workflow GET_R_GENES {
     snap
     miniprot
  }
- /* 
+
+ /*
+ ===========================================
+        TRINITY
+ ===========================================
+ */ 
+  /*
+  Add support for TRINITY, to enable annotation with short-reads
+  */
+
+ /*
+ Accessory function to create input for trinity
+ modified from nf-core/rnaseq/subworkflows/local/input_check.nf
+ */
+
+  def create_shortread_channel(LinkedHashMap row) {
+    // create meta map
+    def meta = [:]
+    meta.id       = row[0]
+    meta.paired   = row.paired.toBoolean()
+
+    // add path(s) of the fastq file(s) to the meta map
+    def shortreads = []
+    if (!file(row.shortread_F).exists()) {
+        exit 1, "ERROR: shortread_F fastq file does not exist!\n${row.shortread_F}"
+    }
+    if (!meta.paired) {
+        shortreads = [ meta.id, meta.paired, [ file(row.shortread_F) ] ]
+    } else {
+        if (!file(row.shortread_R).exists()) {
+            exit 1, "ERROR: shortread_R fastq file does not exist!\n${row.shortread_R}"
+        }
+        shortreads = [ meta.id, meta.paired, [ file(row.shortread_F), file(row.shortread_R) ] ]
+    }
+    return shortreads
+  }
+
+ workflow STAR {
+  take:
+    star_in // sample, genome, gff, paired, reads]
+  
+  main:
+    star_in
+     .map { it -> [it[0], it[2]] }
+     .set { gff_file }
+    star_in
+      .map { it -> [it[0], it[3], it[4]] }
+      .set { reads } // sample, paired, reads
+    AGAT_GFF2GTF(gff_file)
+    star_in
+      .map { it -> [it[0], it[1]] }
+      .join(AGAT_GFF2GTF.out)
+      .set { star_genome }
+
+    GENOMEGENERATE(star_genome) // sample, index
+
+    GENOMEGENERATE
+      .out
+      .join(AGAT_GFF2GTF.out) // sample, index, gtf
+      .join(reads) // sample, index, gtf, paired, reads
+      .set { map_in }
+    MAP(map_in)
+    MAP.out.bam_sorted.set { sorted_bam }
+  
+  emit:
+    sorted_bam
+ }
+
+ workflow RUN_TRINITY {
+  take:
+    ch_input // define samplesheet: sample,genome, gff, short1, short2, paired
+  
+  main:
+    ch_input
+      .map(create_shortread_channel)
+      .set { ch_short_reads }
+    
+    // Trim, takes: [sample, paired, [reads]]
+    TRIMGALORE(ch_short_reads)
+    TRIMGALORE
+      .out
+      .reads
+      .set { trimmed_reads }
+    ch_input
+      .map { it -> [ it[0], it[1], it[2] ] } // sample, genome, gff
+      .join( trimmed_reads ) // sample, genome, gff, paired, reads
+      .set { splice_aln_in } 
+    // STAR, takes: [sample, genome, gff, paired, reads]
+    STAR(splice_aln_in)
+    // Tinity, takes: [sample, bam]
+    TRINITY(STAR.out)
+    TRINITY.out.transcript_fasta.set{ transcripts }
+
+  emit:
+    transcripts
+ }
+ /*
  ===========================================
         PASA
  ===========================================
@@ -409,14 +511,23 @@ workflow GET_R_GENES {
  workflow PASA {
   take: 
     ch_genomes
-    ch_genomes_bambu
+    ch_transcripts
 
   main:
-    AGAT_GTF2GFF(ch_genomes_bambu)
+  // trinity gives fasta file
+  if(params.short_reads) {
+    ch_transcripts
+      .set { transcripts }
+  }
 
+  // bambu gives a gtf file
+  if(!params.short_reads) {
+    AGAT_GTF2GFF(ch_transcript_gff)
     AGAT_EXTRACT_TRANSCRIPTS(AGAT_GTF2GFF.out)
+    AGAT_EXTRACT_TRANSCRIPTS.out.set{ transcripts }
+  }
 
-    PASA_PIPELINE(ch_genomes.join(AGAT_EXTRACT_TRANSCRIPTS.out))
+    PASA_PIPELINE(ch_genomes.join(transcripts))
 
     PASA_PIPELINE
       .out
