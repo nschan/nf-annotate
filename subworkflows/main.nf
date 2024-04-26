@@ -642,13 +642,15 @@ workflow EV_MODELER {
     AGAT_FUNCTIONAL_ANNOTATION(annotation_and_function, blast_reference)
 
     AGAT_GFF2GTF(AGAT_FUNCTIONAL_ANNOTATION.out.gff_file)
-
-    genomes
-      .join(AGAT_GFF2GTF.out)
-      .join(alignments)
-      .set { bambu_in }
+ 
+    if(!params.short_reads) {
+      genomes
+        .join(AGAT_GFF2GTF.out)
+        .join(alignments)
+        .set { bambu_in }
+      BAMBU(bambu_in) //takes: tuple val(meta), path(fasta), path(gtf), path(bams)
+    }
     
-    BAMBU(bambu_in) //takes: tuple val(meta), path(fasta), path(gtf), path(bams)
 
  }
 

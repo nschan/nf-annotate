@@ -8,6 +8,7 @@ params.exclude_pattern = "ATMG"
 params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
 params.r_genes = true
+params.short_reads = false
 params.out = './results'
 params.nevm = 10
 
@@ -52,6 +53,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       ${params.reference_proteins}
      exlude_pattern  : ${params.exclude_pattern}
      find R genes    : ${params.r_genes}
+     short reads     : ${params.short_reads}
    outdir            : ${params.out}
    conda             : ${params.enable_conda}
 
@@ -162,6 +164,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
     }
     // short reads
     if(params.short_reads) {
+      Channel.empty().set { cdna_alignment }
       RUN_TRINITY(ch_samples)
       RUN_TRINITY
         .out

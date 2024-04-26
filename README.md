@@ -6,7 +6,8 @@ The current recommended workflow for assembly and annotation of _Arabidopsis_ fr
   * Annotation: This pipeline.
 
 This pipeline is designed to annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
-It takes a samplesheet of genome assemblies, intitial annoations (liftoff) and *cDNA* ONT Nanopore reads.
+It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads.
+If `--short_reads` is true it takes short reads instead of long cDNA.
 
 # Graph
 
@@ -36,6 +37,11 @@ graph TD;
     ggff --> batrans[bambu transcripts]
     minimap2 --> batrans;
     batrans --> pasa;
+    mRNA>short read transcript] --> trim[Trim galore];
+    trim --> alnshort[STAR]
+    alnshort --> trinity[Trinity]
+    trinity --> pasa
+
     end
     subgraph Annotation consolidation
     AUGUSTUS --> EvidenceModeler{EvidenceModeler};
@@ -54,7 +60,7 @@ graph TD;
     pfam --> Rgene
     Rgene --> r_tsv>R-Gene TSV];
     minimap2 --> counts;
-    EvidenceModeler --> counts;
+    evGFF --> counts;
     counts --> tsv_count>Gene Count TSV];
     subgraph Functional annotation
     EvidenceModeler --> BLASTp;
@@ -110,9 +116,9 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 
 | Parameter | Effect |
 | --- | --- |
-| `--porechop` | Run porechop on the reads? (default: `false`) |
-| `--exclude_patterm` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--samplesheet` | Path to samplesheet |
+| `--porechop` | Run porechop on the reads? (default: `false`) |
+| `--exclude_pattern` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
 | `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
@@ -134,6 +140,15 @@ sample,genome_assembly,liftoff,reads
 | `liftoff` | Path to liftoff annotations |
 | `reads` | Path to file containing cDNA reads |
 
+If `--short_reads` is used the samplesheet should look like:
+
+```
+sample,genome_assembly,liftoff,paired,shortread_F,shortread_R
+sampleName,assembly.fasta,reference.gff,true,short_F1.fastq,short_F2.fastq
+```
+
+If there is only one type of read shortread_R should be empty and paired should be `false`
+
 # Procedure
 
 This pipeline will run the following subworkflows:
@@ -146,6 +161,7 @@ This pipeline will run the following subworkflows:
     - `AUGUSTUS` https://github.com/Gaius-Augustus/Augustus (kind of paralellized)
     - `MINIPROT` https://github.com/lh3/miniprot
   * `BAMBU`: Run `porechop` (optional) on cDNA reads and align via `minimap2` in `splice:hq` mode. Then run `bambu`
+  * `TRINITY`: Run `Trim Galore!` on the short reads, followed by `STAR` for alignment and `TRINITY` for transcript discovery from the alignment.
   * `PASA`: Run the [PASA pipeline](https://github.com/PASApipeline/PASApipeline/wiki) on bambu output . This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of tricky, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
