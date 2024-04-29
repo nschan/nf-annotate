@@ -1,12 +1,20 @@
+include { initOptions; saveFiles; getSoftwareName } from './functions'
+
+params.options = [:]
+options        = initOptions(params.options)
+
 process TRIMGALORE {
     tag "$meta"
     label 'process_high'
+    publishDir "${params.out}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename,
+                                        options:params.options, 
+                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
+                                        publish_id:meta) }
 
     conda "bioconda::trim-galore=0.6.7"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/trim-galore:0.6.7--hdfd78af_0' :
-        'quay.io/biocontainers/trim-galore:0.6.7--hdfd78af_0' }"
-
+ 
     input:
     tuple val(meta), val(paired), path(reads)
 
@@ -36,7 +44,7 @@ process TRIMGALORE {
 
     // Added soft-links to original fastqs for consistent naming in MultiQC
     def prefix = task.ext.prefix ?: "${meta}"
-    if (paired) {
+    if (!paired.toBoolean()) {
         def args_list = args.split("\\s(?=--)").toList()
         args_list.removeAll { it.toLowerCase().contains('_r2 ') }
         """

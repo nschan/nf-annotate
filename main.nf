@@ -26,6 +26,7 @@ include { TRANPOSONS } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
+include { create_shortread_channel } from './subworkflows/main.nf'
 
 log.info """\
 ==============================================================================================================================================
@@ -235,6 +236,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
     )
 
     TRANPOSONS(ch_evm_annotations)
+
  }
 
  workflow {

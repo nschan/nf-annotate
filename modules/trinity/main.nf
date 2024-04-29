@@ -15,11 +15,6 @@ process TRINITY {
                                         publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
                                         publish_id:meta) }
 
-    conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/trinity:2.15.1--pl5321h146fbdb_3':
-        'quay.io/biocontainers/trinity:2.15.1--pl5321h146fbdb_3' }"
-
     input:
     tuple val(meta), path(bam)
 

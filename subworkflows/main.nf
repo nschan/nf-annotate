@@ -65,7 +65,7 @@ include { BAMBU } from '../modules/bambu/main'
 Trinity
 */
 include { TRIMGALORE } from '../modules/trimgalore/main.nf'
-include { ALIGN as MAP } from '../modules/star/main.nf'
+include { STAR_ALIGN as MAP } from '../modules/star/main.nf'
 include { GENOMEGENERATE } from '../modules/star/main.nf'
 include { TRINITY } from '../modules/trinity/main.nf'
 /*
@@ -108,9 +108,6 @@ workflow HRP {
 
     main:
       // Step 1 Extract proteins
-      /* This procedure produces a few broken proteins on TAIR11.
-         This is somewhat concerning, but.. well.
-      */ 
       hrp_in
         .map { row -> [row[0], row[1]] }
         .set { genome }
@@ -124,18 +121,7 @@ workflow HRP {
       AGAT_EXTRACT_PROTEINS
         .out
         .set { proteins }
-      // Step 2 Interproscan
-      // This step works with spack module interproscan/5.63-95.0
-      // I could not locate a container with this version.
-      // Internal container build pipeline failed, the container exceeds storage on our gitlab container storage.
-      //
-      // It does not seem to give proper results with biocontainers/interproscan:5.59_91.0--hec16e2b_1
-      // This seems to be version related.
-      // For me interproscan:5.59_91.0 with -dp did not run, subjobs failed and the result was incomplete.
-      // To use interproscan without -dp the version needs to be the current release.
-      // As of July 2023 this is 5.63-95-0
-      // I guess there are work-arounds for this, it should work with an updated container.
-      INTERPROSCAN_PFAM(proteins)
+       INTERPROSCAN_PFAM(proteins)
       //INTERPROSCAN_EXTENDED(proteins)
       // Step 3.1 Bedfile
       proteins
@@ -295,9 +281,10 @@ workflow GET_R_GENES {
     contig_lengths // meta, lengths
  }
 
-  workflow PREPARE_ANNOTATIONS {
+workflow PREPARE_ANNOTATIONS {
   take: 
     annotations // meta, liftfoff, contig_lengths
+
   main: 
     SUBSET_ANNOTATIONS(annotations)
 
@@ -317,7 +304,8 @@ workflow GET_R_GENES {
 
  workflow RUN_BAMBU {
 
-  take: ch_bambu // sample, genome_assembly, liftoff, reads 
+  take:
+    ch_bambu // sample, genome_assembly, liftoff, reads 
 
   main:
   
@@ -380,7 +368,8 @@ workflow GET_R_GENES {
 
 
  workflow AB_INITIO {
-  take: ch_genomes // meta, genome
+  take: 
+    ch_genomes // meta, genome
 
   main:
     AUGUSTUS(ch_genomes)
@@ -416,33 +405,29 @@ workflow GET_R_GENES {
   /*
   Add support for TRINITY, to enable annotation with short-reads
   */
-
  /*
  Accessory function to create input for trinity
  modified from nf-core/rnaseq/subworkflows/local/input_check.nf
  */
 
-  def create_shortread_channel(LinkedHashMap row) {
-    // create meta map
-    def meta = [:]
-    meta.id       = row[0]
-    meta.paired   = row.paired.toBoolean()
-
-    // add path(s) of the fastq file(s) to the meta map
-    def shortreads = []
-    if (!file(row.shortread_F).exists()) {
-        exit 1, "ERROR: shortread_F fastq file does not exist!\n${row.shortread_F}"
-    }
-    if (!meta.paired) {
-        shortreads = [ meta.id, meta.paired, [ file(row.shortread_F) ] ]
-    } else {
-        if (!file(row.shortread_R).exists()) {
-            exit 1, "ERROR: shortread_R fastq file does not exist!\n${row.shortread_R}"
-        }
-        shortreads = [ meta.id, meta.paired, [ file(row.shortread_F), file(row.shortread_R) ] ]
-    }
-    return shortreads
+def create_shortread_channel(LinkedHashMap row) {
+  id       = row.sample
+  paired   = row.paired.toBoolean()
+  // add path(s) of the fastq file(s) to the meta map
+  def shortreads = []
+  if (!file(row.shortread_F).exists()) {
+      exit 1, "ERROR: shortread_F fastq file does not exist!\n${row.shortread_F}"
   }
+  if (!paired) {
+      shortreads = [ id, paired, [ file(row.shortread_F) ] ]
+  } else {
+      if (!file(row.shortread_R).exists()) {
+          exit 1, "ERROR: shortread_R fastq file does not exist!\n${row.shortread_R}"
+      }
+      shortreads = [ id, paired, [ file(row.shortread_F), file(row.shortread_R) ] ]
+  }
+  return shortreads
+ }
 
  workflow STAR {
   take:
@@ -450,24 +435,26 @@ workflow GET_R_GENES {
   
   main:
     star_in
-     .map { it -> [it[0], it[2]] }
-     .set { gff_file }
+      .map { it -> [it[0], it[2]] }
+      .set { gff_file }
     star_in
       .map { it -> [it[0], it[3], it[4]] }
       .set { reads } // sample, paired, reads
     AGAT_GFF2GTF(gff_file)
     star_in
       .map { it -> [it[0], it[1]] }
-      .join(AGAT_GFF2GTF.out)
+      .join(AGAT_GFF2GTF.out.gtf_file)
       .set { star_genome }
 
     GENOMEGENERATE(star_genome) // sample, index
 
     GENOMEGENERATE
       .out
-      .join(AGAT_GFF2GTF.out) // sample, index, gtf
-      .join(reads) // sample, index, gtf, paired, reads
+      .index
+      .join(AGAT_GFF2GTF.out.gtf_file) // sample, index, gtf
+      .join(reads) // gives sample, index, gtf, paired, reads
       .set { map_in }
+
     MAP(map_in)
     MAP.out.bam_sorted.set { sorted_bam }
   
@@ -481,7 +468,7 @@ workflow GET_R_GENES {
   
   main:
     ch_input
-      .map(create_shortread_channel)
+      .map { create_shortread_channel(it) }
       .set { ch_short_reads }
     
     // Trim, takes: [sample, paired, [reads]]
@@ -490,10 +477,12 @@ workflow GET_R_GENES {
       .out
       .reads
       .set { trimmed_reads }
+
     ch_input
-      .map { it -> [ it[0], it[1], it[2] ] } // sample, genome, gff
-      .join( trimmed_reads ) // sample, genome, gff, paired, reads
+      .map(it -> [ it.sample, it.genome_assembly, it.liftoff ] )// sample, genome, gff
+      .join(trimmed_reads) // sample, genome, gff, paired, reads
       .set { splice_aln_in } 
+
     // STAR, takes: [sample, genome, gff, paired, reads]
     STAR(splice_aln_in)
     // Tinity, takes: [sample, bam]
@@ -515,17 +504,17 @@ workflow GET_R_GENES {
 
   main:
   // trinity gives fasta file
-  if(params.short_reads) {
-    ch_transcripts
-      .set { transcripts }
-  }
+    if(params.short_reads) {
+      ch_transcripts
+        .set { transcripts }
+    }
 
   // bambu gives a gtf file
-  if(!params.short_reads) {
-    AGAT_GTF2GFF(ch_transcript_gff)
-    AGAT_EXTRACT_TRANSCRIPTS(AGAT_GTF2GFF.out)
-    AGAT_EXTRACT_TRANSCRIPTS.out.set{ transcripts }
-  }
+    if(!params.short_reads) {
+      AGAT_GTF2GFF(ch_transcripts)
+      AGAT_EXTRACT_TRANSCRIPTS(AGAT_GTF2GFF.out)
+      AGAT_EXTRACT_TRANSCRIPTS.out.set{ transcripts }
+    }
 
     PASA_PIPELINE(ch_genomes.join(transcripts))
 
@@ -559,20 +548,21 @@ workflow GET_R_GENES {
  ===========================================
  */
 workflow CDS_FROM_ANNOT {
-    take: ch_annot
+    take: 
+      ch_annot
 
     main: 
-    AGAT_EXTRACT_TRANSCRIPTS(ch_annot)
+      AGAT_EXTRACT_TRANSCRIPTS(ch_annot)
 
-    TRANSDECODER(AGAT_EXTRACT_TRANSCRIPTS.out)
+      TRANSDECODER(AGAT_EXTRACT_TRANSCRIPTS.out)
 
-    TRANSDECODER
-      .out
-      .td_gff
-      .set { transdecoder }
+      TRANSDECODER
+        .out
+        .td_gff
+       .set { transdecoder }
 
     emit:
-    transdecoder
+      transdecoder
 }
 
 /*
@@ -586,10 +576,10 @@ workflow EV_MODELER {
       ev_in
 
     main:
-    EV_RUN(ev_in)
+      EV_RUN(ev_in)
 
     emit: 
-    EV_RUN.out.gff
+      EV_RUN.out.gff
 }
 
  /* 

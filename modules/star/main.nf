@@ -6,12 +6,14 @@ options        = initOptions(params.options)
 process GENOMEGENERATE {
     tag "$meta"
     label 'process_high'
-
+    publishDir "${params.out}",
+        mode: params.publish_dir_mode,
+        saveAs: { filename -> saveFiles(filename:filename,
+                                        options:params.options, 
+                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
+                                        publish_id:meta) }
     conda "bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' :
-        'biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' }"
-
+    
     input:
     tuple val(meta), path(fasta), path(gtf)
 
@@ -76,14 +78,12 @@ process GENOMEGENERATE {
     """
 }
 
-process ALIGN {
+process STAR_ALIGN {
     tag "$meta"
     label 'process_high'
 
     conda "bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' :
-        'biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' }"
+    
     publishDir "${params.out}",
         mode: params.publish_dir_mode,
         saveAs: { filename -> saveFiles(filename:filename,
@@ -91,7 +91,7 @@ process ALIGN {
                                     publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
                                     publish_id:meta) }
     input:
-    tuple val(meta), path(index), path(gtf), val(paired), path(reads, stageAs: "input*/*")
+    tuple val(meta), path(index), path(gtf), val(paired), path(reads)
 
     output:
     tuple val(meta), path('*Log.final.out')   , emit: log_final
@@ -123,6 +123,7 @@ process ALIGN {
     """
     STAR \\
         --genomeDir $index \\
+        --readFilesCommand zcat \\
         --readFilesIn ${reads1.join(",")} ${reads2.join(",")} \\
         --runThreadN $task.cpus \\
         --outFileNamePrefix $prefix. \\
@@ -146,3 +147,4 @@ process ALIGN {
         gawk: \$(echo \$(gawk --version 2>&1) | sed 's/^.*GNU Awk //; s/, .*\$//')
     END_VERSIONS
     """
+}
