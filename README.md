@@ -140,7 +140,27 @@ graph TD;
 > Below is an attempt using the `gitGraph` in mermaid
 
 ```mermaid
-%%{init: {'theme': 'base', 'gitGraph': {'mainBranchName': "Prepare Genome", "parallelCommits": false} } }%%
+%%{init: {'theme': 'dark',
+          'themeVariables':{
+            'commitLabelColor': '#cccccc',
+            'commitLabelBackground': '#434244',
+            'commitLabelFontSize': '12px',
+            'tagLabelFontSize': '12px',
+            'git0': '#8db7d2',
+            'git1': '#58508d',
+            'git2': '#bc5090',
+            'git3': '#ff6361',
+            'git4': '#ffa600',
+            'git5': '#74a892',
+            'git6': '#d69e49',
+            'git7': '#00ffff'
+            },
+          'gitGraph': {
+            'mainBranchName': "Prepare Genome",
+             'parallelCommits': false
+             } 
+          }
+}%%
 
 gitGraph TB:
   commit id: "Genome fasta"
@@ -188,7 +208,7 @@ gitGraph TB:
   commit id: "InterproScan"
   commit id: "Functional annotation [agat]" tag: "Gene GFF" type: HIGHLIGHT
   checkout "Tranposon<br>annotation"
-  commit id: "EDTA" tag: "Transposon GFF"
+  commit type: HIGHLIGHT id: "EDTA" tag: "Transposon GFF"
 ```
 
     subgraph Prepare Genome
