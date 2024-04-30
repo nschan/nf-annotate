@@ -135,6 +135,159 @@ graph TD;
   rgff --> mergegff
 ```
 
+## Experimental graph
+
+> Below is an attempt using the `gitGraph` in mermaid
+
+```mermaid
+%%{init: {'theme': 'base', 'gitGraph': {'mainBranchName': "Prepare Genome", "parallelCommits": false} } }%%
+
+gitGraph TB:
+  commit id: "Genome fasta"
+  commit id: "Length filter [seqtk]" tag: "fasta"
+  branch "HRP"
+  branch "Ab initio<br>prediction"
+  branch "Transcript<br>discovery"
+  branch "Evidence Modeler"
+  checkout "Prepare Genome"
+  commit id: "Protein sequences [agat]"
+  checkout "HRP"
+  commit id: "NLR Extraction"
+  commit id: "InterproScan PFAM"
+  commit id: "MEME"
+  commit id: "MAST"
+  commit id: "InterproScan Superfamily"
+  commit id: "Genome scan [miniprot]"
+  commit id: "Merge with input"
+  checkout "Evidence Modeler"
+  merge "HRP" tag: "R-gene GFF"
+  checkout "Ab initio<br>prediction"
+  commit id: "AUGUSTUS"
+  checkout "Evidence Modeler"
+  merge "Ab initio<br>prediction" tag: "AUGUSTUS GFF"
+  checkout "Ab initio<br>prediction"
+  commit id: "SNAP"
+  checkout "Evidence Modeler"
+  merge "Ab initio<br>prediction" tag: "SNAP GFF"
+  checkout "Ab initio<br>prediction"
+  commit id: "miniprot"
+  checkout "Evidence Modeler"
+  merge "Ab initio<br>prediction" tag: "miniprot GFF"
+  checkout "Transcript<br>discovery"
+  commit id: "Reads" tag: "fasta"
+  commit id: "Porechop / Trim Galore"
+  commit id: "minimap2 / STAR"
+  commit id: "bambu / Trinity"
+  checkout "Evidence Modeler"
+  merge "Transcript<br>discovery" tag: "Transcript GFF"
+  commit type: HIGHLIGHT id: "Merged GFF"
+  branch "Functional<br>annotation"
+  branch "Tranposon<br>annotation"
+  checkout "Functional<br>annotation"
+  commit id: "BLAST"
+  commit id: "InterproScan"
+  commit id: "Functional annotation [agat]" tag: "Gene GFF" type: HIGHLIGHT
+  checkout "Tranposon<br>annotation"
+  commit id: "EDTA" tag: "Transposon GFF"
+```
+
+    subgraph Prepare Genome
+      gfasta>Genome Fasta] --> lfilt[Length filter];
+      lfilt --o filtfasta>Filtered Genome]
+      filtfasta --> pseqs[Protein sequences];
+      ggff>Initial genome GFF] --> pseqs;
+    end
+
+    subgraph abinitio[Ab initio annotation]
+      AUGUSTUS;
+      SNAP;
+      MINIPROT;
+    end
+
+    filtfasta --> abinitio
+
+    subgraph hrp[R-Gene prediction]
+        hrppfam[Interproscan Pfam]
+        hrppfam --> nbarc[NB-LRR extraction]
+        nbarc --> meme[MEME]
+        meme --> mast[MAST]
+        mast --> superfam[Interproscan Superfamily]
+        hrppfam --> rgdomains[R-Gene Identification based on Domains]
+        superfam --> rgdomains
+        rgdomains --> miniprot[miniprot: discovery based on known R-genes]
+        miniprot --> seqs>R-Gene sequences]
+        miniprot --> rgff[R-Gene gff]
+        ingff>Input GFF] --> mergegff>Merged GFF]
+        rgff --> mergegff
+    end
+
+    pseqs --> hrp
+    filtfasta --> hrp
+
+    subgraph TranscriptDiscover [Transcript discovery]
+      subgraph longreads [ONT cDNA]
+        cDNA>cDNA Fastq] --> Porechop;
+        Porechop --> minimap2;
+        minimap2 --> batrans[bambu transcripts];
+      end
+      subgraph shortreads [Illumina short reads]
+        mRNA>short read transcript] --> trim[Trim galore];
+        trim --> alnshort[STAR]
+        alnshort --> trinity[Trinity]
+      end
+    end
+
+    filtfasta --> TranscriptDiscover
+    ggff --> TranscriptDiscover
+    batrans --> pasa[pasa: CDS indentification]
+    trinity --> pasa
+    pasa --> EvidenceModeler;
+
+    subgraph AnnoMerge [Annotation merge]
+      AUGUSTUS --> EvidenceModeler{EvidenceModeler};
+      SNAP --> EvidenceModeler;
+      MINIPROT --> EvidenceModeler;
+      EvidenceModeler --> evGFF>EvidenceModeler GFF]
+    end
+
+    mergegff --> EvidenceModeler;
+
+    subgraph counts[Gene Counts]
+      bacounts[bambu counts]
+    end
+
+    subgraph Rgene[R-Gene extraction]
+      rgene[R-Gene filter];
+    end
+
+    pfam --> Rgene
+    Rgene --> r_tsv>R-Gene TSV];
+    minimap2 --> counts;
+    evGFF --> counts;
+    counts --> tsv_count>Gene Count TSV];
+
+    subgraph FuncAnno [Functional annotation]
+      BLASTp;
+      pfam[Interproscan Pfam];
+      BLASTp --> func[Merge];
+      pfam --> func;
+    end
+
+    filtfasta --> FuncAnno
+    AnnoMerge --> FuncAnno
+
+    evGFF --> func
+    func --> gff_anno>Annotation GFF]
+
+    subgraph Transposon[Transposon annotation]
+      edta[EDTA]
+    end
+    filtfasta --> Transposon
+    evGFF --> Transposon
+
+    Transposon --> tranposonGFF>Transposon GFF]
+
+```
 # Tubemap
 
 ![Tubemap](nf-arannotate.tubes.png)
