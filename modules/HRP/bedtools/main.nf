@@ -1,18 +1,13 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process BEDTOOLS_GETFASTA {
   tag "$meta"
   label 'process_low'
   
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(protein_fasta), path(bed_file)
   
@@ -33,12 +28,12 @@ process BEDTOOLS_CLUSTER {
   tag "$meta"
   label 'process_low'
   
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(bed_file)
   
@@ -56,12 +51,12 @@ process BEDTOOLS_NR_CLUSTERS {
   tag "$meta"
   label 'process_low'
   
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(clusters), path(length_estimates)
   
@@ -71,7 +66,6 @@ process BEDTOOLS_NR_CLUSTERS {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-
   join -1 1 -2 1 -o 1.1,1.2,2.5 <( sort -bk1 ${clusters}) <(sort -bk1 ${length_estimates}) | sort -bk2,2 -bk3,3 -nr | sort -uk2,2 | cut -f1 -d ' ' > ${prefix}-R-gene_ID_list.txt
   """
 }

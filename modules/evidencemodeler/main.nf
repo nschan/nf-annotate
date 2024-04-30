@@ -1,8 +1,3 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 /*
 This is kind of parallelized via xargs.
 */
@@ -12,17 +7,17 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
     label 'process_high'
     
     conda (params.enable_conda ? "bioconda::evidencemodeler=2.1.0" : null)
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
 
-input:
+    input:
     tuple val(meta), path(genome), path(genes), path(proteins), path(transcripts)
 
-output:
+    output:
     tuple val(meta), path("*full.gff"), emit: gff
     tuple val(meta), path("*full.pep"), emit: peptides
     tuple val(meta), path("*full.cds"), emit: cds

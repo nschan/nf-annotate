@@ -1,17 +1,12 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process PASA_SEQCLEAN {
     tag "$meta"
     label 'process_medium'
-     publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/'), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:  
         tuple val(meta), path(accession_genome), path(accession_transcripts)
 
@@ -31,12 +26,12 @@ Set $USER https://github.com/PASApipeline/PASApipeline/issues/155
 process PASA_TD {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-    mode: params.publish_dir_mode,
-    saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:  
         tuple val(meta), path(pasa_assembly_fasta), path(pasa_assembly_gff)
 
@@ -62,12 +57,12 @@ Set $USER https://github.com/PASApipeline/PASApipeline/issues/155
 process PASA_PIPELINE {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
 
     input:
         tuple val(meta), path(accession_genome), path(accession_transcripts)

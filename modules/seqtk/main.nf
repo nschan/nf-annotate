@@ -1,17 +1,12 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process SEQTK_SUBSET_INPUT {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
       tuple val(meta), path(genome_fasta), path(annotation_liftoff), path(annotation_bambu), path(contig_list)
   
@@ -34,12 +29,12 @@ process SEQTK_SUBSET_INPUT {
 process SEQTK_SUBSET_FASTA {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
       tuple val(meta), path(genome_fasta), path(contig_list)
   
@@ -56,12 +51,12 @@ process SEQTK_SUBSET_FASTA {
 process SUBSET_ANNOTATIONS {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
       tuple val(meta), path(annotation_liftoff), path(contig_list)
   

@@ -1,9 +1,3 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
-
 /*
  Below is a somewhat parallel approach to running augustus
  This is far from optimal, it just shoots all subjobs into the scheduler at the same time,
@@ -15,12 +9,12 @@ options        = initOptions(params.options)
 process AUGUSTUS_PARALLEL {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
         tuple val(meta), path(accession_genome)
 
@@ -69,12 +63,12 @@ It is much slower than the module above...
 process AUGUSTUS {
     tag "$meta"
     label 'process_medium'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
         tuple val(meta), path(accession_genome)
 

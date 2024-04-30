@@ -1,17 +1,12 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process GENOMEGENERATE {
     tag "$meta"
     label 'process_high'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     conda "bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0"
     
     input:
@@ -84,12 +79,12 @@ process STAR_ALIGN {
 
     conda "bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0"
     
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                    options:params.options, 
-                                    publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                    publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
     tuple val(meta), path(index), path(gtf), val(paired), path(reads)
 

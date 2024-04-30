@@ -1,18 +1,12 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process AGAT_FIX_EXTRACT_TRANSCRIPTS {
   tag "$meta"
   label 'process_medium'
-
-  publishDir "${params.out}",
-    mode: params.publish_dir_mode,
-    saveAs: { filename -> saveFiles(filename:filename,
-                                    options:params.options, 
-                                    publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                    publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(genome_fasta), path(genome_gff)
   
@@ -40,13 +34,12 @@ process AGAT_FIX_EXTRACT_TRANSCRIPTS {
 process AGAT_GXF2GFF {
   tag "$meta"
   label 'process_medium'
-
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(gff_cds), path(gff_augustus), path(gff_snap), path(gff_pasa)
   
@@ -70,13 +63,12 @@ process AGAT_GXF2GFF {
 process AGAT_GTF2GFF {
   tag "$meta"
   label 'process_medium'
-
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(genome), path(gtf_bambu)
   
@@ -95,13 +87,12 @@ process AGAT_GTF2GFF {
 process AGAT_FUNCTIONAL_ANNOTATION {
   tag "$meta"
   label 'process_medium'
-
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(gff), path(blast_results), path(interpro_results)
       tuple val(meta2), path(blast_reference)
@@ -125,16 +116,16 @@ process AGAT_FUNCTIONAL_ANNOTATION {
   sed -i '1,/Formating output to GFF3/d' ${meta}_functional.gff
   """
 }
+
 process AGAT_GFF2GTF {
   tag "$meta"
   label 'process_medium'
-
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(gff)
   
@@ -152,13 +143,12 @@ process AGAT_GFF2GTF {
 process AGAT_GFF2BED {
   tag "$meta"
   label 'process_medium'
-
-  publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(gff)
   
