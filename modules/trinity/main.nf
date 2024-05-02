@@ -38,7 +38,7 @@ process TRINITY {
     Trinity \\
         --genome_guided_bam $bam \\
         --genome_guided_max_intron 10000 \\
-        --max_memory ${avail_mem}G
+        --max_memory ${avail_mem}G \\
         --output ${prefix}_trinity \\
         --CPU $task.cpus \\
         $args \\

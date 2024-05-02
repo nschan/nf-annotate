@@ -7,6 +7,7 @@ params.min_contig_length = 5000
 params.exclude_pattern = "ATMG"
 params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
+params.augustus_species = "arabidopsis"
 params.r_genes = true
 params.short_reads = false
 params.out = './results'
@@ -22,7 +23,7 @@ include { RUN_TRINITY } from './subworkflows/main.nf'
 include { PASA } from './subworkflows/main.nf'
 include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
-include { TRANPOSONS } from './subworkflows/main.nf'
+include { EDTA as TRANPOSONS } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'

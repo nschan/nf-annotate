@@ -17,6 +17,7 @@ process AUGUSTUS_PARALLEL {
     ) 
     input:
         tuple val(meta), path(accession_genome)
+        val(species)
 
     output:
         tuple val(meta), path("*_augustus.gff"), emit: augustus_gff
@@ -38,7 +39,7 @@ process AUGUSTUS_PARALLEL {
             --outputdir="${meta}" \\
             --joblist=jobs.lst \\
             --jobprefix="" \\
-            --command "augustus --exonnames=on --codingseq=on --species=arabidopsis"
+            --command "augustus --exonnames=on --codingseq=on --species=${species}"
         nJobs="\$(tail -n1 jobs.lst)"
         mkdir ${meta}
         for ((j=nJobs; j>0; j--)); do 
@@ -71,6 +72,7 @@ process AUGUSTUS {
     ) 
     input:
         tuple val(meta), path(accession_genome)
+        val(species)
 
     output:
         tuple val(meta), path("*_augustus.gff"), emit: augustus_gff
@@ -78,7 +80,7 @@ process AUGUSTUS {
     script:
         """
         augustus \\
-        --species=arabidopsis \\
+        --species=${species} \\
         ${accession_genome} > ${meta}_augustus.gff.tmp
         awk 'BEGIN {OFS="\\t"}; /^[^#]/ {\$2 = "AUGUSTUS"; nine=\$9
              for(i=10; i <= NF; i++) nine=nine" "\$i

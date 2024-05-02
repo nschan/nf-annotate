@@ -236,6 +236,7 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
 | `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
+| `--augustus_species` | Species to for agustus, default: `"arabidopsis"` |
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
 | `--out` | Results directory, default: `'./results'` |
 

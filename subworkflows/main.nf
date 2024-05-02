@@ -92,7 +92,13 @@ include { BLASTP } from '../modules/blast/blastp/main.nf'
 EDTA
 */
 include { AGAT_GFF2BED } from '../modules/agat/main'
-include { EDTA } from '../modules/edta/main'
+include { EDTA_FULL } from '../modules/edta/main'
+include { LTR } from '../modules/edta/main'
+include { TIR } from '../modules/edta/main'
+include { HELITRON } from '../modules/edta/main'
+include { LINE } from '../modules/edta/main'
+include { SINE } from '../modules/edta/main'
+include { MERGE } from '../modules/edta/main'
 
 /* 
  ===========================================
@@ -372,7 +378,7 @@ workflow PREPARE_ANNOTATIONS {
     ch_genomes // meta, genome
 
   main:
-    AUGUSTUS(ch_genomes)
+    AUGUSTUS(ch_genomes, params.augstus_species)
 
     AUGUSTUS
       .out
@@ -673,9 +679,49 @@ workflow EV_MODELER {
       .join(AGAT_EXTRACT_TRANSCRIPTS.out)
       .set { edta_in }
 
-    EDTA(edta_in)
+    EDTA_FULL(edta_in)
 
     emit:
-      EDTA.out.transposon_annotations
-      EDTA.out.transposon_summary
+      EDTA_FULL.out.transposon_annotations
+      EDTA_FULL.out.transposon_summary
+ }
+
+ workflow EDTA {
+  take:
+    annotated_genome // meta, fasta, gff
+      
+  main:
+    
+    annotated_genome
+      .map { it -> [ it[0], it[1]] }
+      .set { genome }
+
+    annotated_genome
+      .map { it -> [ it[0], it[2]] }
+      .set { annotations }
+    // Prepare files for EDTA main
+    AGAT_EXTRACT_TRANSCRIPTS(annotated_genome)
+    AGAT_GFF2BED(annotations)
+    // EDTA subprocessess
+    LTR(genome)
+    TIR(genome)
+    HELITRON(genome)
+    LINE(genome)
+    SINE(genome)
+    // Join everything
+    genome
+      .join(AGAT_GFF2BED.out)
+      .join(AGAT_EXTRACT_TRANSCRIPTS.out)
+      .join(LTR.out)
+      .join(TIR.out)
+      .join(HELITRON.out)
+      .join(LINE.out)
+      .join(SINE.out)
+      .set { merge_in }
+    // Run Merge
+    MERGE(merge_in)
+
+    emit:
+      MERGE.out.transposon_annotations
+      MERGE.out.transposon_summary
  }
