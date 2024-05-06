@@ -12,9 +12,8 @@ process TRINITY {
     tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path("*.fa.gz")    , emit: transcript_fasta
+    tuple val(meta), path("*_transcripts.fa.gz") , emit: transcript_fasta
     tuple val(meta), path("*.log")      , emit: log
-    path "versions.yml"                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -44,16 +43,6 @@ process TRINITY {
         $args \\
         > >(tee ${prefix}.log)
     
-    gzip \\
-        -cf \\
-        ${prefix}_trinity.Trinity.fasta \\
-        > ${prefix}.fa.gz
-
-    rm ${prefix}_trinity.Trinity.fasta
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        trinity: \$(Trinity --version | grep 'Trinity version:' | sed 's/Trinity version: Trinity-//')
-    END_VERSIONS
+    cp "${prefix}_trinity/Trinity-GG.fasta" ${prefix}_transcripts.fa
     """
 }

@@ -24,8 +24,6 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
     tuple val(meta), path("*full.bed"), emit: bed
     tuple val(meta), path("*_evm.out"), emit: evm_out
 
-    path "versions.yml"           , emit: versions
-
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta}"
@@ -108,10 +106,5 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
     # Create bed file
     /usr/local/bin/EvmUtils/gene_gff3_to_bed.pl ${meta}_evm.full.gff \\
     | sort -k1,1 -k2,2g -k3,3g > ${meta}_evm.full.bed
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        evidencemodeler: 2.1.0
-    END_VERSIONS
     """
 }

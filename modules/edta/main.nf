@@ -50,10 +50,11 @@ process LTR {
         """
         EDTA_raw.pl \\
             --genome $genome_fasta \\
-            --type ltr
+            --type ltr \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/* .
+        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
+        cp ${genome_fasta}.mod.EDTA.raw/*.gff3 .
         """
 }
 
@@ -75,10 +76,11 @@ process TIR {
         """
         EDTA_raw.pl \\
             --genome $genome_fasta \\
-            --type tir
+            --type tir \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/* .
+        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
+        cp ${genome_fasta}.mod.EDTA.raw/*.gff3 .
         """
 }
 
@@ -95,15 +97,16 @@ process HELITRON {
         tuple val(meta), path(genome_fasta)
 
     output:
-        tuple val (meta), path("*.HELITRON.intact.raw.fa"), path("*.HELITRON.intact.raw.gff3"), emit: helitrons
+        tuple val (meta), path("*.Helitron.intact.raw.fa"), path("*.Helitron.intact.raw.gff3"), emit: helitrons
     script:
         """
         EDTA_raw.pl \\
             --genome $genome_fasta \\
-            --type helitron
+            --type helitron \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/* .
+        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
+        cp ${genome_fasta}.mod.EDTA.raw/*.gff3 .     
         """
 }
 
@@ -125,10 +128,10 @@ process LINE {
         """
         EDTA_raw.pl \\
             --genome $genome_fasta \\
-            --type line
+            --type line \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/* .
+        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
         """
 }
 
@@ -150,10 +153,10 @@ process SINE {
         """
         EDTA_raw.pl \\
             --genome $genome_fasta \\
-            --type sine
+            --type sine \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/* .
+        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
         """
 }
 

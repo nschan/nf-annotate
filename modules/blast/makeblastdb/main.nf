@@ -12,7 +12,6 @@ process MAKEBLASTDB {
 
     output:
     tuple val(meta), path("${meta}"), emit: db
-    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,11 +35,6 @@ process MAKEBLASTDB {
         ${args}
 
     mkdir -p ${prefix}
-    mv  modified_${fasta_name}* ${prefix}
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        blast: \$(blastn -version 2>&1 | sed 's/^.*blastn: //; s/ .*\$//')
-    END_VERSIONS
+    mv modified_${fasta_name}* ${prefix}
     """
 }

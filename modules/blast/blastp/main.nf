@@ -16,7 +16,6 @@ process BLASTP {
     tuple val(meta), path("*.xml"), optional: true, emit: xml
     tuple val(meta), path("*.tsv"), optional: true, emit: tsv
     tuple val(meta), path("*.csv"), optional: true, emit: csv
-    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -52,10 +51,5 @@ process BLASTP {
         -max_target_seqs 10 \\
         -outfmt ${outfmt} \\
         ${args}
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        blast: \$(blastp -version 2>&1 | sed 's/^.*blastp: //; s/ .*\$//')
-    END_VERSIONS
     """
 }

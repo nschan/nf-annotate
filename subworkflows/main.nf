@@ -378,7 +378,7 @@ workflow PREPARE_ANNOTATIONS {
     ch_genomes // meta, genome
 
   main:
-    AUGUSTUS(ch_genomes, params.augstus_species)
+    AUGUSTUS(ch_genomes, params.augustus_species)
 
     AUGUSTUS
       .out
@@ -686,37 +686,28 @@ workflow EV_MODELER {
       EDTA_FULL.out.transposon_summary
  }
 
- workflow EDTA {
+ workflow EDTA_ANNOTATE {
   take:
     annotated_genome // meta, fasta, gff
+    transposons
       
   main:
-    
+ 
     annotated_genome
       .map { it -> [ it[0], it[1]] }
       .set { genome }
-
+    
     annotated_genome
       .map { it -> [ it[0], it[2]] }
       .set { annotations }
     // Prepare files for EDTA main
     AGAT_EXTRACT_TRANSCRIPTS(annotated_genome)
     AGAT_GFF2BED(annotations)
-    // EDTA subprocessess
-    LTR(genome)
-    TIR(genome)
-    HELITRON(genome)
-    LINE(genome)
-    SINE(genome)
-    // Join everything
+    // Join everything from EDTA subprocessess
     genome
       .join(AGAT_GFF2BED.out)
       .join(AGAT_EXTRACT_TRANSCRIPTS.out)
-      .join(LTR.out)
-      .join(TIR.out)
-      .join(HELITRON.out)
-      .join(LINE.out)
-      .join(SINE.out)
+      .join(transposons)
       .set { merge_in }
     // Run Merge
     MERGE(merge_in)
@@ -724,4 +715,26 @@ workflow EV_MODELER {
     emit:
       MERGE.out.transposon_annotations
       MERGE.out.transposon_summary
+ }
+
+ workflow EDTA {
+  take:
+    genome //meta, fasta
+  main:
+    // EDTA subprocessess
+    LTR(genome)
+    TIR(genome)
+    HELITRON(genome)
+    LINE(genome)
+    SINE(genome)
+    genome
+      .join(LTR.out)
+      .join(TIR.out)
+      .join(HELITRON.out)
+      .join(LINE.out)
+      .join(SINE.out)
+      .set { transposons }
+  emit:
+    transposons
+
  }
