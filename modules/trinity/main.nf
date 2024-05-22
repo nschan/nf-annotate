@@ -12,7 +12,7 @@ process TRINITY {
     tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path("*_transcripts.fa.gz") , emit: transcript_fasta
+    tuple val(meta), path("*_transcripts.fa") , emit: transcript_fasta
     tuple val(meta), path("*.log")      , emit: log
 
     when:

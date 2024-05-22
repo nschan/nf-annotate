@@ -127,7 +127,7 @@ workflow HRP {
       AGAT_EXTRACT_PROTEINS
         .out
         .set { proteins }
-       INTERPROSCAN_PFAM(proteins)
+      INTERPROSCAN_PFAM(proteins)
       //INTERPROSCAN_EXTENDED(proteins)
       // Step 3.1 Bedfile
       proteins
@@ -728,6 +728,7 @@ workflow EV_MODELER {
     LINE(genome)
     SINE(genome)
     genome
+      .map { it -> it[0] }
       .join(LTR.out)
       .join(TIR.out)
       .join(HELITRON.out)

@@ -25,6 +25,7 @@ include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
 include { EDTA } from './subworkflows/main.nf'
 include { EDTA_ANNOTATE } from './subworkflows/main.nf'
+include { TRANPOSONS } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
@@ -237,8 +238,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       cdna_alignment
     )
 
-    EDTA(ch_genomes)
-    EDTA_ANNOTATE(ch_evm_annotations, EDTA.out)
+    //EDTA(ch_genomes)
+    //EDTA_ANNOTATE(ch_evm_annotations, EDTA.out)
+    TRANPOSONS(ch_evm_annotations)
 
  }
 

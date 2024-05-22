@@ -123,7 +123,7 @@ process LINE {
         tuple val(meta), path(genome_fasta)
 
     output:
-        tuple val (meta), path("*.LINE.raw.fa"), emit: lines
+        tuple val (meta), path("*LINE.raw.fa"), emit: lines
     script:
         """
         EDTA_raw.pl \\
@@ -131,7 +131,7 @@ process LINE {
             --type line \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
+        cp -n ${genome_fasta}.mod.EDTA.raw/LINE/*LINE.raw.fa .
         """
 }
 
@@ -156,7 +156,7 @@ process SINE {
             --type sine \\
             --species others \\
             -t $task.cpus
-        cp ${genome_fasta}.mod.EDTA.raw/*.fa .
+        cp -n ${genome_fasta}.mod.EDTA.raw/SINE/*.SINE.raw.fa . 
         """
 }
 
@@ -183,9 +183,25 @@ process MERGE {
 
     script:
         """
-        mkdir ${genome_fasta}.mod.EDTA.raw
-        ln -s *.raw.fa ${genome_fasta}.mod.EDTA.raw
-        ln -s *.raw.gff ${genome_fasta}.mod.EDTA.raw
+        mkdir -p ${genome_fasta}.mod.EDTA.raw/LINE
+        cp ${line_intact_fa} ${genome_fasta}.mod.EDTA.raw/LINE/
+        cp ${line_intact_fa} ${genome_fasta}.mod.EDTA.raw/
+
+        mkdir -p ${genome_fasta}.mod.EDTA.raw/SINE
+        cp ${sine_intact_fa} ${genome_fasta}.mod.EDTA.raw/SINE/
+        cp ${sine_intact_fa} ${genome_fasta}.mod.EDTA.raw/
+
+        mkdir -p ${genome_fasta}.mod.EDTA.raw/LTR
+        cp ${ltr_raw_fa} ${ltr_raw_intact_fa} ${ltr_raw_intact_gff} ${genome_fasta}.mod.EDTA.raw/LTR/
+        cp ${ltr_raw_fa} ${ltr_raw_intact_fa} ${ltr_raw_intact_gff} ${genome_fasta}.mod.EDTA.raw/
+
+        mkdir -p ${genome_fasta}.mod.EDTA.raw/TIR
+        cp ${tir_intact_fa} ${tir_intact_gff} ${genome_fasta}.mod.EDTA.raw/TIR/
+
+        mkdir -p ${genome_fasta}.mod.EDTA.raw/Helitron
+        cp ${helitron_intact_fa} ${helitron_intact_gff} ${genome_fasta}.mod.EDTA.raw/Helitron/
+        cp ${helitron_intact_fa} ${helitron_intact_gff} ${genome_fasta}.mod.EDTA.raw/
+
         EDTA.pl \\
             --genome $genome_fasta \\
             --cds $cds_fasta \\
@@ -195,6 +211,7 @@ process MERGE {
             --overwrite 0 \\
             --force 1 \\
             -t $task.cpus
+        
         mv ${genome_fasta}.mod.EDTA.raw/*EDTA* .
         mv ${genome_fasta}.mod.EDTA.raw/*MAKER* .
         """
