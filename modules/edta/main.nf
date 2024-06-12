@@ -13,6 +13,7 @@ process EDTA_FULL {
     output:
         tuple val(meta), path("*mod.EDTA.TEanno.gff3"), emit: transposon_annotations
         tuple val(meta), path("*mod.EDTA.TEanno.sum") , emit: transposon_summary
+        tuple val(meta), path("*mod.EDTA.intact.gff3") , emit: transposon_intact_gff
         tuple val(meta), path("*mod.MAKER.masked"), emit: masked
         tuple val(meta), path("*.mod.EDTA.TE.fa.stat.redun.sum"), emit: simple_inconsistency, optional: true
         tuple val(meta), path("*.mod.EDTA.TE.fa.stat.nested.sum"), emit: nested_inconsistency, optional: true
