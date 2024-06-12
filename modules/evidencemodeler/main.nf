@@ -1,8 +1,3 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 /*
 This is kind of parallelized via xargs.
 */
@@ -12,24 +7,22 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
     label 'process_high'
     
     conda (params.enable_conda ? "bioconda::evidencemodeler=2.1.0" : null)
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
 
-input:
+    input:
     tuple val(meta), path(genome), path(genes), path(proteins), path(transcripts)
 
-output:
+    output:
     tuple val(meta), path("*full.gff"), emit: gff
     tuple val(meta), path("*full.pep"), emit: peptides
     tuple val(meta), path("*full.cds"), emit: cds
     tuple val(meta), path("*full.bed"), emit: bed
     tuple val(meta), path("*_evm.out"), emit: evm_out
-
-    path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
@@ -113,10 +106,5 @@ output:
     # Create bed file
     /usr/local/bin/EvmUtils/gene_gff3_to_bed.pl ${meta}_evm.full.gff \\
     | sort -k1,1 -k2,2g -k3,3g > ${meta}_evm.full.bed
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        evidencemodeler: 2.1.0
-    END_VERSIONS
     """
 }

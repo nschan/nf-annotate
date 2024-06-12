@@ -61,7 +61,13 @@ Bambu
 include { ALIGN_TO_BAM as ALIGN} from '../modules/align/main.nf'
 include { BAMBU } from '../modules/bambu/main'
 
-
+/*
+Trinity
+*/
+include { TRIMGALORE } from '../modules/trimgalore/main.nf'
+include { STAR_ALIGN as MAP } from '../modules/star/main.nf'
+include { GENOMEGENERATE } from '../modules/star/main.nf'
+include { TRINITY } from '../modules/trinity/main.nf'
 /*
 PASA
 */
@@ -86,7 +92,13 @@ include { BLASTP } from '../modules/blast/blastp/main.nf'
 EDTA
 */
 include { AGAT_GFF2BED } from '../modules/agat/main'
-include { EDTA } from '../modules/edta/main'
+include { EDTA_FULL } from '../modules/edta/main'
+include { LTR } from '../modules/edta/main'
+include { TIR } from '../modules/edta/main'
+include { HELITRON } from '../modules/edta/main'
+include { LINE } from '../modules/edta/main'
+include { SINE } from '../modules/edta/main'
+include { MERGE } from '../modules/edta/main'
 
 /* 
  ===========================================
@@ -102,9 +114,6 @@ workflow HRP {
 
     main:
       // Step 1 Extract proteins
-      /* This procedure produces a few broken proteins on TAIR11.
-         This is somewhat concerning, but.. well.
-      */ 
       hrp_in
         .map { row -> [row[0], row[1]] }
         .set { genome }
@@ -118,17 +127,6 @@ workflow HRP {
       AGAT_EXTRACT_PROTEINS
         .out
         .set { proteins }
-      // Step 2 Interproscan
-      // This step works with spack module interproscan/5.63-95.0
-      // I could not locate a container with this version.
-      // Internal container build pipeline failed, the container exceeds storage on our gitlab container storage.
-      //
-      // It does not seem to give proper results with biocontainers/interproscan:5.59_91.0--hec16e2b_1
-      // This seems to be version related.
-      // For me interproscan:5.59_91.0 with -dp did not run, subjobs failed and the result was incomplete.
-      // To use interproscan without -dp the version needs to be the current release.
-      // As of July 2023 this is 5.63-95-0
-      // I guess there are work-arounds for this, it should work with an updated container.
       INTERPROSCAN_PFAM(proteins)
       //INTERPROSCAN_EXTENDED(proteins)
       // Step 3.1 Bedfile
@@ -289,9 +287,10 @@ workflow GET_R_GENES {
     contig_lengths // meta, lengths
  }
 
-  workflow PREPARE_ANNOTATIONS {
+workflow PREPARE_ANNOTATIONS {
   take: 
     annotations // meta, liftfoff, contig_lengths
+
   main: 
     SUBSET_ANNOTATIONS(annotations)
 
@@ -311,7 +310,8 @@ workflow GET_R_GENES {
 
  workflow RUN_BAMBU {
 
-  take: ch_bambu // sample, genome_assembly, liftoff, reads 
+  take:
+    ch_bambu // sample, genome_assembly, liftoff, reads 
 
   main:
   
@@ -374,10 +374,11 @@ workflow GET_R_GENES {
 
 
  workflow AB_INITIO {
-  take: ch_genomes // meta, genome
+  take: 
+    ch_genomes // meta, genome
 
   main:
-    AUGUSTUS(ch_genomes)
+    AUGUSTUS(ch_genomes, params.augustus_species)
 
     AUGUSTUS
       .out
@@ -401,7 +402,103 @@ workflow GET_R_GENES {
     snap
     miniprot
  }
- /* 
+
+ /*
+ ===========================================
+        TRINITY
+ ===========================================
+ */ 
+  /*
+  Add support for TRINITY, to enable annotation with short-reads
+  */
+ /*
+ Accessory function to create input for trinity
+ modified from nf-core/rnaseq/subworkflows/local/input_check.nf
+ */
+
+def create_shortread_channel(LinkedHashMap row) {
+  id       = row.sample
+  paired   = row.paired.toBoolean()
+  // add path(s) of the fastq file(s) to the meta map
+  def shortreads = []
+  if (!file(row.shortread_F).exists()) {
+      exit 1, "ERROR: shortread_F fastq file does not exist!\n${row.shortread_F}"
+  }
+  if (!paired) {
+      shortreads = [ id, paired, [ file(row.shortread_F) ] ]
+  } else {
+      if (!file(row.shortread_R).exists()) {
+          exit 1, "ERROR: shortread_R fastq file does not exist!\n${row.shortread_R}"
+      }
+      shortreads = [ id, paired, [ file(row.shortread_F), file(row.shortread_R) ] ]
+  }
+  return shortreads
+ }
+
+ workflow STAR {
+  take:
+    star_in // sample, genome, gff, paired, reads]
+  
+  main:
+    star_in
+      .map { it -> [it[0], it[2]] }
+      .set { gff_file }
+    star_in
+      .map { it -> [it[0], it[3], it[4]] }
+      .set { reads } // sample, paired, reads
+    AGAT_GFF2GTF(gff_file)
+    star_in
+      .map { it -> [it[0], it[1]] }
+      .join(AGAT_GFF2GTF.out.gtf_file)
+      .set { star_genome }
+
+    GENOMEGENERATE(star_genome) // sample, index
+
+    GENOMEGENERATE
+      .out
+      .index
+      .join(AGAT_GFF2GTF.out.gtf_file) // sample, index, gtf
+      .join(reads) // gives sample, index, gtf, paired, reads
+      .set { map_in }
+
+    MAP(map_in)
+    MAP.out.bam_sorted.set { sorted_bam }
+  
+  emit:
+    sorted_bam
+ }
+
+ workflow RUN_TRINITY {
+  take:
+    ch_input // define samplesheet: sample,genome, gff, short1, short2, paired
+  
+  main:
+    ch_input
+      .map { create_shortread_channel(it) }
+      .set { ch_short_reads }
+    
+    // Trim, takes: [sample, paired, [reads]]
+    TRIMGALORE(ch_short_reads)
+    TRIMGALORE
+      .out
+      .reads
+      .set { trimmed_reads }
+
+    ch_input
+      .map(it -> [ it.sample, it.genome_assembly, it.liftoff ] )// sample, genome, gff
+      .join(trimmed_reads) // sample, genome, gff, paired, reads
+      .set { splice_aln_in } 
+
+    // STAR, takes: [sample, genome, gff, paired, reads]
+    STAR(splice_aln_in)
+    // Tinity, takes: [sample, bam]
+    TRINITY(STAR.out)
+    TRINITY.out.transcript_fasta.set{ transcripts }
+
+  emit:
+    transcripts
+ }
+ /*
  ===========================================
         PASA
  ===========================================
@@ -409,14 +506,23 @@ workflow GET_R_GENES {
  workflow PASA {
   take: 
     ch_genomes
-    ch_genomes_bambu
+    ch_transcripts
 
   main:
-    AGAT_GTF2GFF(ch_genomes_bambu)
+  // trinity gives fasta file
+    if(params.short_reads) {
+      ch_transcripts
+        .set { transcripts }
+    }
 
-    AGAT_EXTRACT_TRANSCRIPTS(AGAT_GTF2GFF.out)
+  // bambu gives a gtf file
+    if(!params.short_reads) {
+      AGAT_GTF2GFF(ch_transcripts)
+      AGAT_EXTRACT_TRANSCRIPTS(AGAT_GTF2GFF.out)
+      AGAT_EXTRACT_TRANSCRIPTS.out.set{ transcripts }
+    }
 
-    PASA_PIPELINE(ch_genomes.join(AGAT_EXTRACT_TRANSCRIPTS.out))
+    PASA_PIPELINE(ch_genomes.join(transcripts))
 
     PASA_PIPELINE
       .out
@@ -448,20 +554,21 @@ workflow GET_R_GENES {
  ===========================================
  */
 workflow CDS_FROM_ANNOT {
-    take: ch_annot
+    take: 
+      ch_annot
 
     main: 
-    AGAT_EXTRACT_TRANSCRIPTS(ch_annot)
+      AGAT_EXTRACT_TRANSCRIPTS(ch_annot)
 
-    TRANSDECODER(AGAT_EXTRACT_TRANSCRIPTS.out)
+      TRANSDECODER(AGAT_EXTRACT_TRANSCRIPTS.out)
 
-    TRANSDECODER
-      .out
-      .td_gff
-      .set { transdecoder }
+      TRANSDECODER
+        .out
+        .td_gff
+       .set { transdecoder }
 
     emit:
-    transdecoder
+      transdecoder
 }
 
 /*
@@ -475,10 +582,10 @@ workflow EV_MODELER {
       ev_in
 
     main:
-    EV_RUN(ev_in)
+      EV_RUN(ev_in)
 
     emit: 
-    EV_RUN.out.gff
+      EV_RUN.out.gff
 }
 
  /* 
@@ -531,13 +638,15 @@ workflow EV_MODELER {
     AGAT_FUNCTIONAL_ANNOTATION(annotation_and_function, blast_reference)
 
     AGAT_GFF2GTF(AGAT_FUNCTIONAL_ANNOTATION.out.gff_file)
-
-    genomes
-      .join(AGAT_GFF2GTF.out)
-      .join(alignments)
-      .set { bambu_in }
+ 
+    if(!params.short_reads) {
+      genomes
+        .join(AGAT_GFF2GTF.out)
+        .join(alignments)
+        .set { bambu_in }
+      BAMBU(bambu_in) //takes: tuple val(meta), path(fasta), path(gtf), path(bams)
+    }
     
-    BAMBU(bambu_in) //takes: tuple val(meta), path(fasta), path(gtf), path(bams)
 
  }
 
@@ -570,9 +679,63 @@ workflow EV_MODELER {
       .join(AGAT_EXTRACT_TRANSCRIPTS.out)
       .set { edta_in }
 
-    EDTA(edta_in)
+    EDTA_FULL(edta_in)
 
     emit:
-      EDTA.out.transposon_annotations
-      EDTA.out.transposon_summary
+      EDTA_FULL.out.transposon_annotations
+      EDTA_FULL.out.transposon_summary
+ }
+
+ workflow EDTA_ANNOTATE {
+  take:
+    annotated_genome // meta, fasta, gff
+    transposons
+      
+  main:
+ 
+    annotated_genome
+      .map { it -> [ it[0], it[1]] }
+      .set { genome }
+    
+    annotated_genome
+      .map { it -> [ it[0], it[2]] }
+      .set { annotations }
+    // Prepare files for EDTA main
+    AGAT_EXTRACT_TRANSCRIPTS(annotated_genome)
+    AGAT_GFF2BED(annotations)
+    // Join everything from EDTA subprocessess
+    genome
+      .join(AGAT_GFF2BED.out)
+      .join(AGAT_EXTRACT_TRANSCRIPTS.out)
+      .join(transposons)
+      .set { merge_in }
+    // Run Merge
+    MERGE(merge_in)
+
+    emit:
+      MERGE.out.transposon_annotations
+      MERGE.out.transposon_summary
+ }
+
+ workflow EDTA {
+  take:
+    genome //meta, fasta
+  main:
+    // EDTA subprocessess
+    LTR(genome)
+    TIR(genome)
+    HELITRON(genome)
+    LINE(genome)
+    SINE(genome)
+    genome
+      .map { it -> it[0] }
+      .join(LTR.out)
+      .join(TIR.out)
+      .join(HELITRON.out)
+      .join(LINE.out)
+      .join(SINE.out)
+      .set { transposons }
+  emit:
+    transposons
+
  }

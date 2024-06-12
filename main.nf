@@ -7,7 +7,9 @@ params.min_contig_length = 5000
 params.exclude_pattern = "ATMG"
 params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
+params.augustus_species = "arabidopsis"
 params.r_genes = true
+params.short_reads = false
 params.out = './results'
 params.nevm = 10
 
@@ -15,15 +17,19 @@ include { HRP } from './subworkflows/main.nf'
 include { GET_R_GENES } from './subworkflows/main.nf'
 include { PREPARE_GENOMES } from './subworkflows/main.nf'
 include { PREPARE_ANNOTATIONS } from './subworkflows/main.nf'
-include { RUN_BAMBU } from './subworkflows/main.nf'
 include { AB_INITIO } from './subworkflows/main.nf'
+include { RUN_BAMBU } from './subworkflows/main.nf'
+include { RUN_TRINITY } from './subworkflows/main.nf'
 include { PASA } from './subworkflows/main.nf'
 include { CDS_FROM_ANNOT } from './subworkflows/main.nf'
 include { EV_MODELER } from './subworkflows/main.nf'
+include { EDTA } from './subworkflows/main.nf'
+include { EDTA_ANNOTATE } from './subworkflows/main.nf'
 include { TRANPOSONS } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
+include { create_shortread_channel } from './subworkflows/main.nf'
 
 log.info """\
 ==============================================================================================================================================
@@ -51,6 +57,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       ${params.reference_proteins}
      exlude_pattern  : ${params.exclude_pattern}
      find R genes    : ${params.r_genes}
+     short reads     : ${params.short_reads}
    outdir            : ${params.out}
    conda             : ${params.enable_conda}
 
@@ -141,6 +148,9 @@ Niklas Schandry                                  niklas@bio.lmu.de              
             ) 
       .set { ch_bambu } // sample, genome_assembly, liftoff, reads 
 
+    // Transcript discovery
+    // long reads
+    if(!params.short_reads) {
     RUN_BAMBU(ch_bambu)
 
     RUN_BAMBU
@@ -154,9 +164,19 @@ Niklas Schandry                                  niklas@bio.lmu.de              
         .out
         .bambu_gtf
         )
-      .set { ch_genomes_bambu }
+      .set { transcripts }
+    }
+    // short reads
+    if(params.short_reads) {
+      Channel.empty().set { cdna_alignment }
+      RUN_TRINITY(ch_samples)
+      RUN_TRINITY
+        .out
+        .set { transcripts }
+    }
+
     
-    PASA(ch_genomes, ch_genomes_bambu)
+    PASA(ch_genomes, transcripts)
     
     AGAT_GXF2GFF(
       ch_annotation_subset
@@ -218,7 +238,10 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       cdna_alignment
     )
 
+    //EDTA(ch_genomes)
+    //EDTA_ANNOTATE(ch_evm_annotations, EDTA.out)
     TRANPOSONS(ch_evm_annotations)
+
  }
 
  workflow {
