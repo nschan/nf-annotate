@@ -15,7 +15,7 @@ If `--short_reads` is true it takes short reads instead of long cDNA.
 To run the pipeline with a samplesheet on biohpc_gen with charliecloud:
 
 ```
-git clone https://gitlab.lrz.de/beckerlab/nf-arannotate
+git clone https://github.com/nschan/nf-annotate
 nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
                           --out './results' \
                           -profile biohpc_gen
