@@ -1,5 +1,7 @@
 # nf-arannotate
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg)](https://zenodo.org/doi/10.5281/zenodo.12759772)https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg
+
 The current recommended workflow for assembly and annotation of _Arabidopsis_ from ONT reads is:
 
   * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)
