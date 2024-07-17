@@ -33,6 +33,7 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 | `--gene_id_pattern` | Regex to capture gene name in initial annoations. Default: ` "AT[1-5C]G[0-9]+.[0-9]+|evm[0-9a-z\\.]*|ATAN.*" ` will capture TAIR IDs, evm IDs and ATAN  |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
 | `--augustus_species` | Species to for agustus, default: `"arabidopsis"` |
+| `--short_reads` | Provide this parametere if the transcriptome reads are short reads (see below). Default: `false` |
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
 | `--out` | Results directory, default: `'./results'` |
 
@@ -58,7 +59,20 @@ sample,genome_assembly,liftoff,paired,shortread_F,shortread_R
 sampleName,assembly.fasta,reference.gff,true,short_F1.fastq,short_F2.fastq
 ```
 
-If there is only one type of read shortread_R should be empty and paired should be `false`
+| Column | Content |
+| --- | --- |
+| `sample` | Name of the sample |
+| `genome_assembly` | Path to assembly fasta file |
+| `liftoff` | Path to liftoff annotations |
+| `pair` | `true` or `false` depending on whether the short reads are paired |
+| `shortread_F` | Path to forward reads |
+| `shortread_R` | Path to reverse reads |
+
+> If there is only one type of read shortread_R should remain empty and paired should be `false`
+
+> NB: It is possible to mix paired and unpaired reads within one samplesheet, e.g. when performing annotation of many genomes with heterogenious data availability.
+
+> NB: It is *not* possible to mix long and short reads in a single samplesheet.
 
 # Procedure
 
@@ -71,8 +85,8 @@ This pipeline will run the following subworkflows:
     - `SNAP` https://github.com/KorfLab/SNAP/tree/master
     - `AUGUSTUS` https://github.com/Gaius-Augustus/Augustus (kind of paralellized)
     - `MINIPROT` https://github.com/lh3/miniprot
-  * `BAMBU`: Run `porechop` (optional) on cDNA reads and align via `minimap2` in `splice:hq` mode. Then run `bambu`
-  * `TRINITY`: Run `Trim Galore!` on the short reads, followed by `STAR` for alignment and `TRINITY` for transcript discovery from the alignment.
+  * `BAMBU` (long cDNA reads): Run `porechop` (optional) on cDNA reads and align via `minimap2` in `splice:hq` mode. Then run `bambu`
+  * `TRINITY` (short cDNA reads): Run `Trim Galore!` on the short reads, followed by `STAR` for alignment and `TRINITY` for transcript discovery from the alignment.
   * `PASA`: Run the [PASA pipeline](https://github.com/PASApipeline/PASApipeline/wiki) on bambu output . This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of tricky, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
