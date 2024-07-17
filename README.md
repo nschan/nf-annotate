@@ -235,6 +235,7 @@ nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
 | `--exclude_pattern` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
 | `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
+| `--gene_id_pattern` | Regex to capture gene name in initial annoations. Default: ` "AT[1-5C]G[0-9]+.[0-9]+|evm[0-9a-z\\.]*|ATAN.*" ` will capture TAIR IDs, evm IDs and ATAN  |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
 | `--augustus_species` | Species to for agustus, default: `"arabidopsis"` |
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |

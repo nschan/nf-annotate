@@ -139,7 +139,8 @@ workflow HRP {
       MEME(BEDTOOLS_GETFASTA.out)
       // Step 4 MAST
       MAST(proteins
-            .join(MEME.out))
+            .join(MEME.out),
+            params.gene_id_pattern)
       // Step 5
 
       proteins
