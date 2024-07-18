@@ -53,6 +53,6 @@ process MAST {
   """
   mast -o ${meta}_mast ${meme_out} ${protein_fasta}
   cp ${meta}_mast/mast.txt ${meta}_mast_out.txt
-  cat ${meta}_mast_out.txt | grep -oE ${gene_id_pattern} > ${meta}_mast_geneIDs.txt
+  cat ${meta}_mast_out.txt | grep -oE "${gene_id_pattern}" > ${meta}_mast_geneIDs.txt
   """
 }
