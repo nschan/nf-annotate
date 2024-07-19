@@ -148,7 +148,7 @@ process AGAT_COMPLEMENT {
   script:
       def prefix = task.ext.prefix ?: "${meta}"
   """
-  awk -F'\t' -v OFS='\t' '!(\$8=="0,1" || \$8=="0,2") {print \$0}' ${nlr_gff} > filtered_${nlr_gff}
+  awk -F'\t' -v OFS='\t' '!(\$8=="0,1" || \$8=="0,2" || \$8=="1,2") {print \$0}' ${nlr_gff} > filtered_${nlr_gff}
   agat_sp_complement_annotations.pl \\
     --ref ${ref_gff} \\
     --add filtered_${nlr_gff} \\

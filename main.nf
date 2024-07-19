@@ -36,15 +36,15 @@ log.info """\
 ==============================================================================================================================================
 ==============================================================================================================================================
 
-███▄▄▄▄      ▄████████    ▄████████    ▄████████    ▄████████ ███▄▄▄▄   ███▄▄▄▄    ▄██████▄      ███        ▄████████     ███        ▄████████ 
-███▀▀▀██▄   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄ ███▀▀▀██▄ ███    ███ ▀█████████▄   ███    ███ ▀█████████▄   ███    ███ 
-███   ███   ███    █▀    ███    ███   ███    ███   ███    ███ ███   ███ ███   ███ ███    ███    ▀███▀▀██   ███    ███    ▀███▀▀██   ███    █▀  
-███   ███  ▄███▄▄▄       ███    ███  ▄███▄▄▄▄██▀   ███    ███ ███   ███ ███   ███ ███    ███     ███   ▀   ███    ███     ███   ▀  ▄███▄▄▄     
-███   ███ ▀▀███▀▀▀     ▀███████████ ▀▀███▀▀▀▀▀   ▀███████████ ███   ███ ███   ███ ███    ███     ███     ▀███████████     ███     ▀▀███▀▀▀     
-███   ███   ███          ███    ███ ▀███████████   ███    ███ ███   ███ ███   ███ ███    ███     ███       ███    ███     ███       ███    █▄  
-███   ███   ███          ███    ███   ███    ███   ███    ███ ███   ███ ███   ███ ███    ███     ███       ███    ███     ███       ███    ███ 
- ▀█   █▀    ███          ███    █▀    ███    ███   ███    █▀   ▀█   █▀   ▀█   █▀   ▀██████▀     ▄████▀     ███    █▀     ▄████▀     ██████████ 
-                                      ███    ███                                                                                               
+███▄▄▄▄      ▄████████    ▄████████ ███▄▄▄▄   ███▄▄▄▄    ▄██████▄      ███        ▄████████     ███        ▄████████ 
+███▀▀▀██▄   ███    ███   ███    ███ ███▀▀▀██▄ ███▀▀▀██▄ ███    ███ ▀█████████▄   ███    ███ ▀█████████▄   ███    ███ 
+███   ███   ███    █▀    ███    ███ ███   ███ ███   ███ ███    ███    ▀███▀▀██   ███    ███    ▀███▀▀██   ███    █▀  
+███   ███  ▄███▄▄▄       ███    ███ ███   ███ ███   ███ ███    ███     ███   ▀   ███    ███     ███   ▀  ▄███▄▄▄     
+███   ███ ▀▀███▀▀▀     ▀███████████ ███   ███ ███   ███ ███    ███     ███     ▀███████████     ███     ▀▀███▀▀▀     
+███   ███   ███          ███    ███ ███   ███ ███   ███ ███    ███     ███       ███    ███     ███       ███    █▄  
+███   ███   ███          ███    ███ ███   ███ ███   ███ ███    ███     ███       ███    ███     ███       ███    ███ 
+ ▀█   █▀    ███          ███    █▀   ▀█   █▀   ▀█   █▀   ▀██████▀     ▄████▀     ███    █▀     ▄████▀     ██████████ 
+                                                                                                                     
                                                                                                                                                           
 ----------------------------------------------------------------------------------------------------------------------------------------------
 Niklas Schandry                                  niklas@bio.lmu.de                               https://gitlab.lrz.de/beckerlab/nf-arannotate                                          
@@ -86,11 +86,16 @@ Niklas Schandry                                  niklas@bio.lmu.de              
            .set { ch_samples }
     }
     else {
-    exit 1, 'Input samplesheet not specified!'
+      exit 1, 'Input samplesheet not specified!'
     }
     /*
     Samplesheet:
     sample,genome_assembly,liftoff,reads
+    */
+
+    /*
+    New samplesheet
+    sample, genome_assembly, liftoff, read_type, forward, reverse
     */
     ch_samples
       .map { it -> [it.sample, it.genome_assembly] }
@@ -148,6 +153,53 @@ Niklas Schandry                                  niklas@bio.lmu.de              
             .map { it -> [it.sample, it.reads] } 
             ) 
       .set { ch_bambu } // sample, genome_assembly, liftoff, reads 
+    
+    /*
+    Attempt to add branching:
+
+    New samplesheet
+    sample, genome_assembly, liftoff, paired, forward, reverse
+    
+    ch_samples
+      .branch {
+        sample, genome_assembly, liftoff, paired, forward, reverse ->
+          longread: paired == "long" // everything that is not long is short
+          shortread: true // short-reads can be true or false for paired
+     }
+      .set { ch_samples }
+
+    // Long reads go into bambu
+
+    ch_genomes
+      .join(ch_annotation_subset)
+      .join(ch_samples.longread
+            .map { it -> [ it.sample, it.forward ] } 
+            ) 
+      .set { ch_bambu }
+          RUN_BAMBU(ch_bambu)
+
+    RUN_BAMBU
+      .out
+      .alignment
+      .set { cdna_alignment }
+    
+    ch_genomes
+      .join(
+        RUN_BAMBU
+        .out
+        .bambu_gtf
+        )
+      .set { long_transcripts }
+
+    // Short reads go into trinity
+      RUN_TRINITY(ch_samples.shortread)
+      RUN_TRINITY
+        .out
+        .set { short_transcripts }
+
+    long_transcripts.mix(short_transcripts)
+      .set { transcripts }
+    */
 
     // Transcript discovery
     // long reads
