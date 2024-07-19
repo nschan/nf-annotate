@@ -18,7 +18,7 @@ To run the pipeline with a samplesheet on biohpc_gen with charliecloud:
 
 ```
 git clone https://github.com/nschan/nf-annotate
-nextflow run nf-evmodeler --samplesheet 'path/to/sample_sheet.csv' \
+nextflow run nf-annotate --samplesheet 'path/to/sample_sheet.csv' \
                           --out './results' \
                           -profile biohpc_gen
 ```
