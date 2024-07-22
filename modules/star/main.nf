@@ -13,7 +13,7 @@ process GENOMEGENERATE {
     tuple val(meta), path(fasta), path(gtf)
 
     output:
-    tuple val(meta), path("star")  , emit: index
+    tuple val(meta), path("*_star")  , emit: index
     path "versions.yml"            , emit: versions
 
     when:
@@ -36,6 +36,7 @@ process GENOMEGENERATE {
         --genomeSAindexNbases \$NUM_BASES \\
         $memory \\
         $args
+    mv star ${meta}_star
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         star: \$(STAR --version | sed -e "s/STAR_//g")
@@ -113,6 +114,7 @@ process STAR_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta}"
+    def sortRAM = task.memory.toGiga()
     def reads1 = [], reads2 = []
     paired ? [reads].flatten().each{reads1 << it} : reads.eachWithIndex{ v, ix -> ( ix & 1 ? reads2 : reads1) << v }
     """
@@ -124,6 +126,7 @@ process STAR_ALIGN {
         --outFileNamePrefix $prefix. \\
         --outSAMtype BAM SortedByCoordinate \\
         --sjdbGTFfile $gtf \\
+        --limitBAMsortRAM "$sortRAM"G
         $args
 
     if [ -f ${prefix}.Unmapped.out.mate1 ]; then
