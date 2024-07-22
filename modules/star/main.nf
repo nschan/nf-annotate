@@ -114,7 +114,6 @@ process STAR_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta}"
-    def sortRAM = task.memory.toGiga()
     def reads1 = [], reads2 = []
     paired ? [reads].flatten().each{reads1 << it} : reads.eachWithIndex{ v, ix -> ( ix & 1 ? reads2 : reads1) << v }
     """
@@ -126,7 +125,6 @@ process STAR_ALIGN {
         --outFileNamePrefix $prefix. \\
         --outSAMtype BAM SortedByCoordinate \\
         --sjdbGTFfile $gtf \\
-        --limitBAMsortRAM "$sortRAM"G
         $args
 
     if [ -f ${prefix}.Unmapped.out.mate1 ]; then
