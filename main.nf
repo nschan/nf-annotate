@@ -5,6 +5,7 @@ params.porechop = false
 params.publish_dir_mode = 'copy'
 params.min_contig_length = 5000
 params.exclude_pattern = "ATMG"
+params.bamsortram = 0
 params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
 params.augustus_species = "arabidopsis"
@@ -59,6 +60,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
      exlude_pattern  : ${params.exclude_pattern}
      find R genes    : ${params.r_genes}
      short reads     : ${params.short_reads}
+     STAR: BAM RAM   : ${params.bamsortram}
    outdir            : ${params.out}
    conda             : ${params.enable_conda}
 
@@ -226,10 +228,10 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       // create input for trinity based on subset genomes
       ch_genomes
         .join(PREPARE_ANNOTATIONS
-               .out
-               .annotation_subset)
+                .out
+                .annotation_subset)
         .join(ch_samples
-               .map( it -> [ it.sample, it.shortread_F, it.shortread_R, it.paired ] ))
+                .map( it -> [ it.sample, it.shortread_F, it.shortread_R, it.paired ] ))
         .set { ch_trinity }
            
       RUN_TRINITY(ch_trinity)
@@ -305,7 +307,6 @@ Niklas Schandry                                  niklas@bio.lmu.de              
     //EDTA(ch_genomes)
     //EDTA_ANNOTATE(ch_evm_annotations, EDTA.out)
     TRANPOSONS(ch_evm_annotations)
-
  }
 
  workflow {

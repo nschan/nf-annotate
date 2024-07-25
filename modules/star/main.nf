@@ -115,6 +115,7 @@ process STAR_ALIGN {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta}"
     def reads1 = [], reads2 = []
+    def bamram = params.bamsortram
     paired ? [reads].flatten().each{reads1 << it} : reads.eachWithIndex{ v, ix -> ( ix & 1 ? reads2 : reads1) << v }
     """
     STAR \\
@@ -125,6 +126,7 @@ process STAR_ALIGN {
         --outFileNamePrefix $prefix. \\
         --outSAMtype BAM SortedByCoordinate \\
         --sjdbGTFfile $gtf \\
+        --limitBAMsortRAM $bamram \\
         $args
 
     if [ -f ${prefix}.Unmapped.out.mate1 ]; then

@@ -488,7 +488,7 @@ def create_shortread_channel(LinkedHashMap row) {
 
     ch_input
       .map { it -> [ it[0], it[1], it[2] ] }// sample, genome, gff
-      .join(trimmed_reads) // sample, genome, gff, paired, reads
+      .join(trimmed_reads) // creates: sample, genome, gff, paired, reads
       .set { splice_aln_in } 
 
     // STAR, takes: [sample, genome, gff, paired, reads]
