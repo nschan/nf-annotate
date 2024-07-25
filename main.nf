@@ -221,8 +221,19 @@ Niklas Schandry                                  niklas@bio.lmu.de              
     }
     // short reads
     if(params.short_reads) {
+
       Channel.empty().set { cdna_alignment }
-      RUN_TRINITY(ch_samples)
+      // create input for trinity based on subset genomes
+      ch_genomes
+        .join(PREPARE_ANNOTATIONS
+               .out
+               .annotation_subset)
+        .join(ch_samples
+               .map( it -> [ it.sample, it.shortread_F, it.shortread_R, it.paired ] ))
+        .set { ch_trinity }
+           
+      RUN_TRINITY(ch_trinity)
+
       RUN_TRINITY
         .out
         .set { transcripts }

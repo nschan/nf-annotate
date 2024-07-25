@@ -475,6 +475,7 @@ def create_shortread_channel(LinkedHashMap row) {
   
   main:
     ch_input
+      .map { it -> [ sample: it[0], genome: it[1], gff: it[2], shortread_F: it[3], shortread_R: it[4], paired: it[5] ] }
       .map { create_shortread_channel(it) }
       .set { ch_short_reads }
     
@@ -486,7 +487,7 @@ def create_shortread_channel(LinkedHashMap row) {
       .set { trimmed_reads }
 
     ch_input
-      .map(it -> [ it.sample, it.genome_assembly, it.liftoff ] )// sample, genome, gff
+      .map { it -> [ it[0], it[1], it[2] ] }// sample, genome, gff
       .join(trimmed_reads) // sample, genome, gff, paired, reads
       .set { splice_aln_in } 
 
