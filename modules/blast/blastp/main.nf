@@ -40,8 +40,8 @@ process BLASTP {
     if [ "${is_compressed}" == "true" ]; then
         gzip -c -d ${fasta} > ${fasta_name}
     fi
-
-    DB=`find -L ./ -name "*.phr" | sed 's/\\.phr\$//'`
+    db_path=${db}
+    DB=`find -L \$db_path -name "*.phr" | sed 's/\\.phr\$//'`
     
     blastp \\
         -query ${fasta_name} \\
