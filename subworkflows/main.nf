@@ -38,6 +38,9 @@ Processing of reads, genomes and annotations
 */
 
 include { PORECHOP } from '../modules/porechop/main.nf'
+include { SAMTOOLS_FASTQ } from '../modules/samtools/fastq/main.nf'
+include { LIMA } from '../modules/pacbio/main.nf'
+include { REFINE } from '../modules/pacbio/main.nf'
 include { SEQKIT_GET_LENGTH as SEQKIT_CONTIG_LENGTH } from '../modules/seqkit/main.nf'
 include { SEQTK_SUBSET_FASTA } from '../modules/seqtk/main.nf'
 include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
@@ -328,9 +331,10 @@ workflow PREPARE_ANNOTATIONS {
 
     ch_bambu
       .map { it -> [it[0], it[1], it[2]] }
-      .set { ch_bambu_in }
+      .set { ch_genome_annotation }
 
-    if(params.porechop) {
+    // ONT Trimming
+    if(params.mode != 'ont' && params.preprocess_reads) {
 
       PORECHOP(ch_reads)
 
@@ -341,20 +345,47 @@ workflow PREPARE_ANNOTATIONS {
         .join(ch_genome)
         .set { ch_aln }
 
-    } else {
-
+    } 
+    // Pacbio hifi preprocessing
+    if(params.mode == 'pacbio' && params.preprocess_reads) {
+      if(is.null(params.primers)) error 'No pacbio sequencing primers were provided'
+      LIMA(ch_reads, params.primers)
+      REFINE(LIMA.out.bam, params.primers, params.pacbio_polya)
+      SAMTOOLS_FASTQ(REFINE.out.bam)
+      SAMTOOLS_FASTQ
+        .out
+        .join(ch_genome)
+        .set { ch_ aln }
+    } 
+    //No preprocessing
+    if(!params.preprocess_reads) {
       ch_reads
         .join(ch_genome)
         .set { ch_aln }
 
     }
+    if(params.aligner == "minimap2") {
+      MINIMAP2_ALIGN(ch_aln)
 
-    MINIMAP2_ALIGN(ch_aln)
-    MINIMAP2_ALIGN
-      .out
-      .set { alignment }
+      MINIMAP2_ALIGN
+        .out
+        .set { alignment }
+    } 
+    if(params.aligner == "ultra") {
+      ULTRA_IDX(ch_genome_annotation) // meta, pickle, db
       
-    BAMBU(ch_bambu_in
+      ch_aln
+        .join(ch_genome_annotation)
+        .set { ch_ultra_aln_in }
+
+      ULTRA_ALIGN(ch_ultra_aln_in, params.mode) // val(meta), path(reads), path(genome), path(pickle), path(db)
+
+      ULTRA_ALIGN
+        .out
+        .set { alignment }
+    }
+      
+    BAMBU(ch_genome_annotation
             .join(alignment))
 
     BAMBU

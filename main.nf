@@ -1,11 +1,15 @@
 nextflow.enable.dsl = 2 
 params.samplesheet = false
 params.enable_conda = false
-params.porechop = false
+params.preprocess_reads = false
 params.publish_dir_mode = 'copy'
 params.min_contig_length = 5000
 params.exclude_pattern = "ATMG"
 params.bamsortram = 0
+params.mode = 'ont'
+params.primers = null
+params.pacbio_polya = true
+params.aligner = 'minimap2'
 params.reference_name = "Col-CEN"
 params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
 params.augustus_species = "arabidopsis"
@@ -54,11 +58,13 @@ Niklas Schandry                                  niklas@bio.lmu.de              
   Parameters:
      samplesheet     : ${params.samplesheet}
      min contig size : ${params.min_contig_length}
-     run porechop    : ${params.porechop}
+     preprocess reads: ${params.preprocess_reads}
      protein ref     : 
       ${params.reference_proteins}
      exlude_pattern  : ${params.exclude_pattern}
      find R genes    : ${params.r_genes}
+     long-read mode  : ${params.mode}
+     aligner         : ${params.aligner}
      short reads     : ${params.short_reads}
      STAR: BAM RAM   : ${params.bamsortram}
    outdir            : ${params.out}
@@ -304,8 +310,6 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       cdna_alignment
     )
 
-    //EDTA(ch_genomes)
-    //EDTA_ANNOTATE(ch_evm_annotations, EDTA.out)
     TRANPOSONS(ch_evm_annotations)
  }
 
