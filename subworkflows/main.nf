@@ -58,7 +58,9 @@ include { MINIPROT } from '../modules/miniprot/main.nf'
 Bambu
 */
 
-include { ALIGN_TO_BAM as ALIGN} from '../modules/align/main.nf'
+include { MINIMAP2_TO_BAM as MINIMAP2_ALIGN} from '../modules/align/main.nf'
+include { ULTRA_ALIGN } from '../modules/uLTRA/main.nf'
+include { ULTRA_INDEX  as ULTRA_IDX } from '../modules/uLTRA/main.nf'
 include { BAMBU } from '../modules/bambu/main'
 
 /*
@@ -347,8 +349,8 @@ workflow PREPARE_ANNOTATIONS {
 
     }
 
-    ALIGN(ch_aln)
-    ALIGN
+    MINIMAP2_ALIGN(ch_aln)
+    MINIMAP2_ALIGN
       .out
       .set { alignment }
       

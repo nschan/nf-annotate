@@ -1,8 +1,8 @@
 // Dockerfile for minimap2-samtools container is in this folder.
 
-process ALIGN_TO_BAM {
+process MINIMAP2_TO_BAM {
     tag "$meta"
-    label 'process_low'
+    label 'process_medium'
     publishDir(
       path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
       mode: 'copy',
