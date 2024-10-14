@@ -5,15 +5,15 @@ The assembly is naturally quite organisms agnostic, but the annotation pipeline 
 
 # nf-arannotate
 
-The current recommended workflow for assembly and annotation of _Arabidopsis_ from ONT reads is:
+The current recommended workflow for assembly and annotation of _Arabidopsis_ from long reads is:
 
   * Assembly: [`nf-arassembly`](https://github.com/nschan/nf-arassembly)
   * Annotation: This pipeline.
 
 This pipeline is designed to annotate outputs from [`nf-arassembly`](https://github.com/nschan/nf-arassembly).
-It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads.
-If `--short_reads` is true it takes short reads instead of long cDNA.
+It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads or pacbio isoseq reads.
 
+If `--short_reads` is `true` the pipeline takes short reads instead of long cDNA. This is probably better than no reads, but for high-quality annotations long transcriptome reads are recommended.
 
 # Usage
 
