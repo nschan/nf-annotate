@@ -37,34 +37,3 @@ process LIMA {
     """
 
 }
-
-process REFINE {
-    tag "$meta"
-    label 'process_low'
-
-    input:
-    tuple val(meta), path(bam)
-    path primers
-    val(pacbio_polya)
-
-    output:
-    tuple val(meta), path("*_refined.bam")               , emit: bam
-    tuple val(meta), path("*.bam.pbi")                   , emit: pbi
-    tuple val(meta), path("*.consensusreadset.xml")      , emit: consensusreadset
-    tuple val(meta), path("*.filter_summary.report.json"), emit: summary
-    tuple val(meta), path("*.report.csv")                , emit: report
-
-    script:
-    def args = task.ext.args ?: ''
-    def poly_a = pacbio_polya ? '--require-polya' : ''
-    """
-    isoseq \\
-        refine \\
-        $poly_a \\
-        -j $task.cpus \\
-        $args \\
-        $bam \\
-        $primers \\
-        ${meta}_refined.bam
-    """
-}

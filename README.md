@@ -28,17 +28,17 @@ nextflow run nf-annotate --samplesheet 'path/to/sample_sheet.csv' \
 | Parameter | Effect |
 | --- | --- |
 | `--samplesheet` | Path to samplesheet |
-| `--preprocess_reads` | Run `porechop` on ONT reads or [`LIMA`-`REFINE`-`CLUSTER`](https://isoseq.how/getting-started.html) on pacbio reads? (default: `false`) |
+| `--preprocess_reads` | Run `porechop` on ONT reads or [`LIMA`-`REFINE`](https://isoseq.how/getting-started.html) on pacbio reads? (default: `false`) |
 | `--exclude_pattern` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
 | `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
 | `--gene_id_pattern` | Regex to capture gene name in initial annoations. Default: ` "AT[1-5C]G[0-9]+.[0-9]+|evm[0-9a-z\\.]*|ATAN.*" ` will capture TAIR IDs, evm IDs and ATAN  |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
 | `--augustus_species` | Species to for agustus, default: `"arabidopsis"` |
-| `--aligner` | Aligner for long-reads. Options are `'minimap2'` or `ultra`. Default: `"minimap2"` |
 | `--mode` | Specify `'ont'` or `'pacbio'`. Default `'ont'` |
+| `--aligner` | Aligner for long-reads. Options are `'minimap2'` or `ultra`. Default: `'minimap2'` |
 | `--pacbio_polya` | Require (and trim) polyA tails from pacbio reads? Default: `true` |
-| `--primers` | File containing primers used for pacbio sequencing (required if mode is pacbio). Default : `null` |
+| `--primers` | File containing primers used for pacbio sequencing (required if `--mode` is 'pacbio'). Default : `null` |
 | `--short_reads` | Provide this parametere if the transcriptome reads are short reads (see below). Default: `false` |
 | `--bamsortram` | *Short-reads only*: passed to STAR for `--limitBAMsortRAM`. Specifies RAM available for BAM sorting, in bytes. Default: `0` |
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
