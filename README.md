@@ -1,13 +1,16 @@
-# nf-arannotate
-
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg)](https://zenodo.org/doi/10.5281/zenodo.12759772)
+
+The goal of [`nf-arassembly`](https://github.com/nschan/nf-arassembly) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
+The assembly is naturally quite organisms agnostic, but the annotation pipeline contains some steps that may not make sense for other eukaryotes, unless there is a particular interest in NB-LRR genes.
+
+# nf-arannotate
 
 The current recommended workflow for assembly and annotation of _Arabidopsis_ from ONT reads is:
 
-  * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)
+  * Assembly: [`nf-arassembly`](https://github.com/nschan/nf-arassembly)
   * Annotation: This pipeline.
 
-This pipeline is designed to annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
+This pipeline is designed to annotate outputs from [`nf-arassembly`](https://github.com/nschan/nf-arassembly).
 It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads.
 If `--short_reads` is true it takes short reads instead of long cDNA.
 
