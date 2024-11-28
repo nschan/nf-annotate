@@ -40,7 +40,7 @@ Processing of reads, genomes and annotations
 include { PORECHOP } from '../modules/porechop/main.nf'
 include { SAMTOOLS_FASTQ } from '../modules/samtools/fastq/main.nf'
 include { LIMA } from '../modules/pacbio/main.nf'
-include { REFINE } from '../modules/pacbio/main.nf'
+//include { REFINE } from '../modules/pacbio/main.nf'
 include { SEQKIT_GET_LENGTH as SEQKIT_CONTIG_LENGTH } from '../modules/seqkit/main.nf'
 include { SEQTK_SUBSET_FASTA } from '../modules/seqtk/main.nf'
 include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
@@ -353,10 +353,11 @@ workflow PREPARE_ANNOTATIONS {
     } 
     // Pacbio hifi preprocessing
     if(params.mode == 'pacbio' && params.preprocess_reads) {
+      error 'Pacbio is currently not supported.'
       if(is.null(params.primers)) error 'No pacbio sequencing primers were provided'
       LIMA(ch_reads, params.primers)
-      REFINE(LIMA.out.bam, params.primers, params.pacbio_polya)
-      SAMTOOLS_FASTQ(REFINE.out.bam)
+      //REFINE(LIMA.out.bam, params.primers, params.pacbio_polya)
+      SAMTOOLS_FASTQ(LIMA.out.bam)
       SAMTOOLS_FASTQ
         .out
         .join(ch_genome)
