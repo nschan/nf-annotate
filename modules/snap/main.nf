@@ -1,14 +1,12 @@
 process SNAP {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/snap:2013_11_29--h470a237_1'
+    : 'quay.io/biocontainers/snap:2013_11_29--h470a237_1'}"
     input:
         tuple val(meta), path(accession_genome)
+        val (organism)
 
     output:
         tuple val(meta), path("*_snap.gff"), emit: snap_gff
@@ -16,7 +14,7 @@ process SNAP {
 
     script:
         """
-        snap A.thaliana.hmm ${accession_genome} \\
+        snap ${organism}.hmm ${accession_genome} \\
         -gff \\
         -aa ${meta}.fna > ${meta}_snap.tmp.gff
         cat ${meta}_snap.tmp.gff \\

@@ -1,12 +1,9 @@
 process TRINITY {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/trinity:2.15.1--pl5321hdcf5f25_4'
+        : 'quay.io/biocontainers/trinity:2.15.1--pl5321hdcf5f25_4'}"
 
     input:
     tuple val(meta), path(bam)

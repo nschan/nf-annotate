@@ -9,12 +9,9 @@
 process AUGUSTUS_PARALLEL {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/augustus:3.5.0--pl5321h700735d_3' :
+        'quay.io/biocontainers/augustus:3.5.0--pl5321h700735d_3' }"
     input:
         tuple val(meta), path(accession_genome)
         val(species)
@@ -64,12 +61,9 @@ It is much slower than the module above...
 process AUGUSTUS {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/augustus:3.5.0--pl5321h700735d_3' :
+        'quay.io/biocontainers/augustus:3.5.0--pl5321h700735d_3' }"
     input:
         tuple val(meta), path(accession_genome)
         val(species)

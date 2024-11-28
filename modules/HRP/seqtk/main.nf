@@ -1,21 +1,18 @@
 process SEQTK_SUBSET_RPS {
-  tag "$meta"
+  tag "${meta}"
   label 'process_low'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
-  input:
-      tuple val(meta), path(fasta), path(ids1), path(ids2)
-  
-  output:
-      tuple val(meta), path("*_subset.fasta"), emit: fasta_subset
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1'
+    : 'quay.io/biocontainers/seqtk:1.4--he4a0461_1'}"
 
-  
+  input:
+  tuple val(meta), path(fasta), path(ids1), path(ids2)
+
+  output:
+  tuple val(meta), path("*_subset.fasta"), emit: fasta_subset
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
     cat ${ids1} \\
     | cut -f 1 > ${ids1}_gene_ids.txt
@@ -27,23 +24,20 @@ process SEQTK_SUBSET_RPS {
 }
 
 process SEQTK_SUBSET_FL {
-  tag "$meta"
+  tag "${meta}"
   label 'process_low'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
-  input:
-      tuple val(meta), path(fasta), path(fl_tab)
-  
-  output:
-      tuple val(meta), path("*full_length.fasta"), emit: fasta_subset
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1'
+    : 'quay.io/biocontainers/seqtk:1.4--he4a0461_1'}"
 
-  
+  input:
+  tuple val(meta), path(fasta), path(fl_tab)
+
+  output:
+  tuple val(meta), path("*full_length.fasta"), emit: fasta_subset
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
     cat ${fl_tab} \\
     | cut -f 1 > ${fl_tab}_gene_ids.txt 
@@ -53,22 +47,20 @@ process SEQTK_SUBSET_FL {
 }
 
 process SEQTK_SUBSET_CANDIDATES {
-  tag "$meta"
+  tag "${meta}"
   label 'process_low'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/seqtk:1.4--he4a0461_1'
+    : 'quay.io/biocontainers/seqtk:1.4--he4a0461_1'}"
+
   input:
-      tuple val(meta), path(fasta), path(ids1), path(ids2)
-  
+  tuple val(meta), path(fasta), path(ids1), path(ids2)
+
   output:
-      tuple val(meta), path("*_NBLRR_candidates.fasta"), emit: nblrr_fasta
-  
+  tuple val(meta), path("*_NBLRR_candidates.fasta"), emit: nblrr_fasta
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
     cat ${ids1} \\
     | cut -f1 -d '-' > ${ids1}_gene_ids.txt

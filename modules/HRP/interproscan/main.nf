@@ -1,7 +1,9 @@
 process INTERPROSCAN_PFAM {
   tag "$meta"
   label 'process_high'
-
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://interpro/interproscan:5.67-99.0'
+    : 'interpro/interproscan:5.67-99.0'}"
   
   publishDir(
     path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
@@ -33,12 +35,9 @@ process INTERPROSCAN_PFAM {
 process INTERPROSCAN {
   tag "$meta"
   label 'process_high'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://interpro/interproscan:5.67-99.0'
+    : 'interpro/interproscan:5.67-99.0'}"
   input:
       tuple val(meta), path(proteins)
   
@@ -62,12 +61,9 @@ process INTERPROSCAN {
 process INTERPROSCAN_EXTENDED {
   tag "$meta"
   label 'process_high'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://interpro/interproscan:5.67-99.0'
+    : 'interpro/interproscan:5.67-99.0'}"
   input:
       tuple val(meta), path(candidate_nb_lrrs)
   
@@ -92,12 +88,9 @@ process INTERPROSCAN_SUPERFAMILY {
   tag "$meta"
   label 'process_high'
   
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://interpro/interproscan:5.67-99.0'
+    : 'interpro/interproscan:5.67-99.0'}"
   input:
       tuple val(meta), path(protein_fasta)
   

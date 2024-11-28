@@ -1,16 +1,19 @@
-# nf-arannotate
-
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg)](https://zenodo.org/doi/10.5281/zenodo.12759772)
 
-The current recommended workflow for assembly and annotation of _Arabidopsis_ from ONT reads is:
+The goal of [`nf-arassembly`](https://github.com/nschan/nf-arassembly) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
+The assembly is naturally quite organisms agnostic, but the annotation pipeline contains some steps that may not make sense for other eukaryotes, unless there is a particular interest in NB-LRR genes.
 
-  * Assembly: [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly)
+# nf-arannotate
+
+The current recommended workflow for assembly and annotation of _Arabidopsis_ from long reads is:
+
+  * Assembly: [`nf-arassembly`](https://github.com/nschan/nf-arassembly)
   * Annotation: This pipeline.
 
-This pipeline is designed to annotate outputs from [`nf-arassembly`](https://gitlab.lrz.de/beckerlab/nf-arassembly).
-It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads.
-If `--short_reads` is true it takes short reads instead of long cDNA.
+This pipeline is designed to annotate outputs from [`nf-arassembly`](https://github.com/nschan/nf-arassembly).
+It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads or pacbio isoseq reads.
 
+If `--short_reads` is `true` the pipeline takes short reads instead of long cDNA. This is probably better than no reads, but for high-quality annotations long transcriptome reads are recommended.
 
 # Usage
 
@@ -28,13 +31,18 @@ nextflow run nf-annotate --samplesheet 'path/to/sample_sheet.csv' \
 | Parameter | Effect |
 | --- | --- |
 | `--samplesheet` | Path to samplesheet |
-| `--porechop` | Run porechop on the reads? (default: `false`) |
+| `--preprocess_reads` | Run `porechop` on ONT reads or [`LIMA`-`REFINE`](https://isoseq.how/getting-started.html) on pacbio reads? (default: `false`) |
 | `--exclude_pattern` | Exclusion pattern for chromosome names (HRP, default `ATMG`, ignores mitochondrial genome) |
 | `--reference_name` | Reference name (for BLAST), default: `Col-CEN` |
 | `--reference_proteins` | Protein reference (defaults to Col-CEN); see known issues / blast below for additional information |
 | `--gene_id_pattern` | Regex to capture gene name in initial annoations. Default: ` "AT[1-5C]G[0-9]+.[0-9]+|evm[0-9a-z\\.]*|ATAN.*" ` will capture TAIR IDs, evm IDs and ATAN  |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
 | `--augustus_species` | Species to for agustus, default: `"arabidopsis"` |
+| `--snap_organism` | Model to use for snap, default: `"A.thaliana"` |
+| `--mode` | Specify `'ont'` or `'pacbio'`. Default `'ont'` |
+| `--aligner` | Aligner for long-reads. Options are `'minimap2'` or `ultra`. Default: `'minimap2'` |
+| `--pacbio_polya` | Require (and trim) polyA tails from pacbio reads? Default: `true` |
+| `--primers` | File containing primers used for pacbio sequencing (required if `--mode` is 'pacbio'). Default : `null` |
 | `--short_reads` | Provide this parametere if the transcriptome reads are short reads (see below). Default: `false` |
 | `--bamsortram` | *Short-reads only*: passed to STAR for `--limitBAMsortRAM`. Specifies RAM available for BAM sorting, in bytes. Default: `0` |
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
@@ -106,110 +114,6 @@ All processess will emit their outputs to results.
 
 # Graph
 
-General Graph
-
-```mermaid
-%%{init: {'theme': 'dark', "flowchart" : { "curve" : "basis" } } }%%
-
-graph TD;
-    subgraph Prepare Genome
-      gfasta>Genome Fasta] --> lfilt[Length filter];
-      lfilt --o filtfasta>Filtered Genome]
-      filtfasta --> pseqs[Protein sequences];
-      ggff>Initial genome GFF] --> pseqs;
-    end
-
-    subgraph abinitio[Ab initio annotation]
-      AUGUSTUS;
-      SNAP;
-      MINIPROT;
-    end
-
-    filtfasta --> abinitio
-
-    subgraph hrp[R-Gene prediction]
-        hrppfam[Interproscan Pfam]
-        hrppfam --> nbarc[NB-LRR extraction]
-        nbarc --> meme[MEME]
-        meme --> mast[MAST]
-        mast --> superfam[Interproscan Superfamily]
-        hrppfam --> rgdomains[R-Gene Identification based on Domains]
-        superfam --> rgdomains
-        rgdomains --> miniprot[miniprot: discovery based on known R-genes]
-        miniprot --> seqs>R-Gene sequences]
-        miniprot --> rgff[R-Gene gff]
-        ingff>Input GFF] --> mergegff>Merged GFF]
-        rgff --> mergegff
-    end
-
-    pseqs --> hrp
-    filtfasta --> hrp
-
-    subgraph TranscriptDiscover [Transcript discovery]
-      subgraph longreads [ONT cDNA]
-        cDNA>cDNA Fastq] --> Porechop;
-        Porechop --> minimap2;
-        minimap2 --> batrans[bambu transcripts];
-      end
-      subgraph shortreads [Illumina short reads]
-        mRNA>short read transcript] --> trim[Trim galore];
-        trim --> alnshort[STAR]
-        alnshort --> trinity[Trinity]
-      end
-    end
-
-    filtfasta --> TranscriptDiscover
-    ggff --> TranscriptDiscover
-    batrans --> pasa[pasa: CDS indentification]
-    trinity --> pasa
-    pasa --> EvidenceModeler;
-
-    subgraph AnnoMerge [Annotation merge]
-      AUGUSTUS --> EvidenceModeler{EvidenceModeler};
-      SNAP --> EvidenceModeler;
-      MINIPROT --> EvidenceModeler;
-      EvidenceModeler --> evGFF>EvidenceModeler GFF]
-    end
-
-    mergegff --> EvidenceModeler;
-
-    subgraph counts[Gene Counts]
-      bacounts[bambu counts]
-    end
-
-    subgraph Rgene[R-Gene extraction]
-      rgene[R-Gene filter];
-    end
-
-    pfam --> Rgene
-    Rgene --> r_tsv>R-Gene TSV];
-    minimap2 --> counts;
-    evGFF --> counts;
-    counts --> tsv_count>Gene Count TSV];
-
-    subgraph FuncAnno [Functional annotation]
-      BLASTp;
-      pfam[Interproscan Pfam];
-      BLASTp --> func[Merge];
-      pfam --> func;
-    end
-
-    filtfasta --> FuncAnno
-    AnnoMerge --> FuncAnno
-
-    evGFF --> func
-    func --> gff_anno>Annotation GFF]
-
-    subgraph Transposon[Transposon annotation]
-      edta[EDTA]
-    end
-    filtfasta --> Transposon
-    evGFF --> Transposon
-
-    Transposon --> tranposonGFF>Transposon GFF]
-
-```
-
 Graph for HRP
 
 ```mermaid
@@ -230,9 +134,7 @@ graph TD;
   rgff --> mergegff
 ```
 
-## Experimental graph
-
-> Below is an attempt using the `gitGraph` in mermaid
+## Overall graph
 
 ```mermaid
 %%{init: {'theme': 'dark',
@@ -308,13 +210,13 @@ gitGraph TB:
 
 # Tubemap
 
-![Tubemap](nf-arannotate.tubes.png)
+This tubemap is somewhat outdated.
 
+![Tubemap](nf-arannotate.tubes.png)
 
 # Pipeline information 
 
 This pipeline performs a number of steps specifically aimed at discovery and annotation of NLR genes.
-
 
 # Known issues & edge case handling
 

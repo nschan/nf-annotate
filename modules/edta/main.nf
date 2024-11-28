@@ -1,12 +1,9 @@
 process EDTA_FULL {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         tuple val(meta), path(genome_fasta), path(bed), path(cds_fasta)
 
@@ -36,12 +33,9 @@ process EDTA_FULL {
 process LTR {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         tuple val(meta), path(genome_fasta)
 
@@ -62,12 +56,9 @@ process LTR {
 process TIR {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         tuple val(meta), path(genome_fasta)
 
@@ -88,12 +79,9 @@ process TIR {
 process HELITRON {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         tuple val(meta), path(genome_fasta)
 
@@ -114,12 +102,9 @@ process HELITRON {
 process LINE {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         tuple val(meta), path(genome_fasta)
 
@@ -139,12 +124,9 @@ process LINE {
 process SINE {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         tuple val(meta), path(genome_fasta)
 
@@ -164,12 +146,9 @@ process SINE {
 process MERGE {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/edta:2.2.0--hdfd78af_0' :
+        'quay.io/biocontainers/edta:2.2.0--hdfd78af_0' }"
     input:
         // LTR, TIR, HELITRON, LINE, SINE
         tuple val(meta), path(genome_fasta), path(bed), path(cds_fasta), path(ltr_raw_fa), path(ltr_raw_intact_fa), path(ltr_raw_intact_gff), path(tir_intact_fa), path(tir_intact_gff), path(helitron_intact_fa), path(helitron_intact_gff), path(line_intact_fa), path(sine_intact_fa)
