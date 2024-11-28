@@ -1,16 +1,16 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg)](https://zenodo.org/doi/10.5281/zenodo.12759772)
 
-The goal of [`nf-arassembly`](https://github.com/nschan/nf-arassembly) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
+The goal of [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
 The assembly is naturally quite organisms agnostic, but the annotation pipeline contains some steps that may not make sense for other eukaryotes, unless there is a particular interest in NB-LRR genes.
 
 # nf-arannotate
 
 The current recommended workflow for assembly and annotation of _Arabidopsis_ from long reads is:
 
-  * Assembly: [`nf-arassembly`](https://github.com/nschan/nf-arassembly)
+  * Assembly: [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly)
   * Annotation: This pipeline.
 
-This pipeline is designed to annotate outputs from [`nf-arassembly`](https://github.com/nschan/nf-arassembly).
+This pipeline is designed to annotate outputs from [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly).
 It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads or pacbio isoseq reads.
 
 If `--short_reads` is `true` the pipeline takes short reads instead of long cDNA. This is probably better than no reads, but for high-quality annotations long transcriptome reads are recommended.
@@ -102,7 +102,7 @@ This pipeline will run the following subworkflows:
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of tricky, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
   * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`. Produces protein fasta. Creates `.gff` and `.gtf` outputs. Also quantifies transcripts via `bambu`.
-  * `TRANSPOSONS`: Annotate transposons using `EDTA`
+  * `TRANSPOSONS`: Annotate transposons using `HiTE`
 
 The weights for EVidenceModeler are defined in `assets/weights.tsv`
 
@@ -205,7 +205,7 @@ gitGraph TB:
   commit id: "InterproScan"
   commit id: "Functional annotation [agat]" tag: "Gene GFF" type: HIGHLIGHT
   checkout "Tranposon<br>annotation"
-  commit type: HIGHLIGHT id: "EDTA" tag: "Transposon GFF"
+  commit type: HIGHLIGHT id: "HiTE" tag: "Transposon GFF"
 ```
 
 # Tubemap

@@ -94,6 +94,11 @@ include { MAKEBLASTDB } from '../modules/blast/makeblastdb/main.nf'
 include { BLASTP } from '../modules/blast/blastp/main.nf'
 
 /*
+HiTE
+*/
+include { HITE } from '../modules/hite/main'
+
+/*
 EDTA
 */
 include { AGAT_GFF2BED } from '../modules/agat/main'
@@ -691,7 +696,27 @@ workflow EV_MODELER {
  ===========================================
  */
 
- workflow TRANPOSONS {
+ workflow TRANPSOSONS {
+  take:
+    genome // meta, fasta
+  
+  main:
+    HITE(genome)
+  
+  emit:
+  longest_repeats = HITE.out.longest_repeats
+  confident_tir = HITE.out.confident_tir
+  confident_helitron = HITE.out.confident_helitron
+  confident_non_ltr = HITE.out.confident_non_ltr
+  confident_other = HITE.out.confident_other
+  confident_ltr_cut_cons = HITE.out.confident_ltr_cut_cons
+  hite_out = HITE.out.hite_out
+  hite_gff = HITE.out.hite_gff
+  hite_tbl  = HITE.out.hite_tbl 
+ }
+ // Here are old EDTA transposon
+ /*
+ workflow TRANPOSONS_EDTA {
   take:
     annotated_genome // meta, fasta, gff
       
@@ -748,8 +773,8 @@ workflow EV_MODELER {
     MERGE(merge_in)
 
     emit:
-      MERGE.out.transposon_annotations
-      MERGE.out.transposon_summary
+      annotations = MERGE.out.transposon_annotations
+      summary = MERGE.out.transposon_summary
  }
 
  workflow EDTA {
@@ -774,3 +799,4 @@ workflow EV_MODELER {
     transposons
 
  }
+ */
