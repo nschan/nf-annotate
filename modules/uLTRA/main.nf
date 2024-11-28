@@ -1,12 +1,9 @@
 process ULTRA_ALIGN {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ultra_bioinformatics:0.1--pyh7cba7a3_1'
+        : 'quay.io/biocontainers/ultra_bioinformatics:0.1--pyh7cba7a3_1'}"
     input:
         tuple val(meta), path(reads), path(genome), path(pickle), path(db)
         val(mode)
@@ -45,12 +42,9 @@ process ULTRA_ALIGN {
 process ULTRA_INDEX {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/ultra_bioinformatics:0.1--pyh7cba7a3_1'
+        : 'quay.io/biocontainers/ultra_bioinformatics:0.1--pyh7cba7a3_1'}"
     input:
         tuple val(meta), path(genome), path(annotations)
 

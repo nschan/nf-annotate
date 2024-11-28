@@ -1,13 +1,7 @@
 process IPS2FPG {
   tag "$meta"
   label 'process_low'
-  
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+
   input:
       tuple val(meta), path(pfam_out), path(superfamily_out)
   

@@ -1,11 +1,8 @@
 process BAMBU {
     tag "$meta"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bioconductor-bambu:3.4.0--r43hf17093f_0' :
+        'quay.io/biocontainers/bioconductor-bambu:3.4.0--r43hf17093f_0' }"
 
     input:
     tuple val(meta), path(fasta), path(gtf), path(bams)

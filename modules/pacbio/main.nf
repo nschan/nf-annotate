@@ -1,12 +1,9 @@
 process LIMA {
     tag "$meta"
     label 'process_medium'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/lima:2.9.0--h9ee0642_1'
+        : 'quay.io/biocontainers/lima:2.9.0--h9ee0642_1'}"
     input:
         tuple val(meta), path(reads)
         path(primers)

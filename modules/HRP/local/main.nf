@@ -1,20 +1,19 @@
 process GET_R_GENE_GFF {
-  tag "$meta"
+  tag "${meta}"
   label 'process_low'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_2'
+    : 'quay.io/biocontainers/bedtools:2.31.1--hf5e1c6e_2'}"
+
   input:
-      tuple val(meta), path(gff), path(r_gene_list)
-  
+  tuple val(meta), path(gff), path(r_gene_list)
+
   output:
-      tuple val(meta), path("*R_gene_annotations.gff"), emit: r_gene_gff
-      tuple val(meta), path("*_R_genes_merged.gff"),    emit: r_genes_merged_gff
+  tuple val(meta), path("*R_gene_annotations.gff"), emit: r_gene_gff
+  tuple val(meta), path("*_R_genes_merged.gff"), emit: r_genes_merged_gff
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   /*
   The second part of this script does:
    - Sort gff file for bedtools
@@ -31,23 +30,21 @@ process GET_R_GENE_GFF {
 }
 
 process FILTER_R_GENES {
-  tag "$meta"
+  tag "${meta}"
   label 'process_low'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://rocker/tidyverse:4.3.1'
+    : 'rocker/tidyverse:4.3.1'}"
+
   input:
-      tuple val(meta), path(pfam_out), path(superfamily_out)
+  tuple val(meta), path(pfam_out), path(superfamily_out)
 
   output:
-      tuple val(meta), path("*NLR_table.tsv"), emit: out_tsv
-      tuple val(meta), path("*NLR_genes.tsv"), emit: full_length_tsv
+  tuple val(meta), path("*NLR_table.tsv"), emit: out_tsv
+  tuple val(meta), path("*NLR_genes.tsv"), emit: full_length_tsv
 
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
 
   """
   filter_R_genes.R ${pfam_out} ${superfamily_out} ${meta}
@@ -55,23 +52,21 @@ process FILTER_R_GENES {
 }
 
 process FILTER_R_GENES_SINGLE_INPUT {
-  tag "$meta"
+  tag "${meta}"
   label 'process_low'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://rocker/tidyverse:4.3.1'
+    : 'rocker/tidyverse:4.3.1'}"
+
   input:
-      tuple val(meta), path(pfam_out)
+  tuple val(meta), path(pfam_out)
 
   output:
-      tuple val(meta), path("*NLR_table.tsv"), emit: out_tsv
-      tuple val(meta), path("*NLR_genes.tsv"), emit: full_length_tsv
+  tuple val(meta), path("*NLR_table.tsv"), emit: out_tsv
+  tuple val(meta), path("*NLR_genes.tsv"), emit: full_length_tsv
 
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
 
   """
   filter_R_genes.R ${pfam_out} ${meta}

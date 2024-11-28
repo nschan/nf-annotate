@@ -38,6 +38,7 @@ nextflow run nf-annotate --samplesheet 'path/to/sample_sheet.csv' \
 | `--gene_id_pattern` | Regex to capture gene name in initial annoations. Default: ` "AT[1-5C]G[0-9]+.[0-9]+|evm[0-9a-z\\.]*|ATAN.*" ` will capture TAIR IDs, evm IDs and ATAN  |
 | `--r_genes` | Run R-Gene prediction pipeline?, default: `true` |
 | `--augustus_species` | Species to for agustus, default: `"arabidopsis"` |
+| `--snap_organism` | Model to use for snap, default: `"A.thaliana"` |
 | `--mode` | Specify `'ont'` or `'pacbio'`. Default `'ont'` |
 | `--aligner` | Aligner for long-reads. Options are `'minimap2'` or `ultra`. Default: `'minimap2'` |
 | `--pacbio_polya` | Require (and trim) polyA tails from pacbio reads? Default: `true` |

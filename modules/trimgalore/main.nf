@@ -1,12 +1,9 @@
 process TRIMGALORE {
     tag "$meta"
     label 'process_high'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/trim-galore:0.6.7--hdfd78af_0'
+        : 'quay.io/biocontainers/trim-galore:0.6.7--hdfd78af_0'}"
 
     conda "bioconda::trim-galore=0.6.7"
  

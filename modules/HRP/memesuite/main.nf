@@ -1,20 +1,18 @@
 process MEME {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://memesuite/memesuite:5.5.5'
+    : 'memesuite/memesuite:5.5.5'}"
+
   input:
-      tuple val(meta), path(protein_fasta)
-  
+  tuple val(meta), path(protein_fasta)
+
   output:
-      tuple val(meta), path("*.txt"), emit: meme_out
-  
+  tuple val(meta), path("*.txt"), emit: meme_out
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   meme ${protein_fasta}  \\
      -protein  \\
@@ -25,31 +23,29 @@ process MEME {
      -maxw 7 \\
      -objfun classic \\
      -markov_order 0 \\
-     -p $task.cpus
+     -p ${task.cpus}
   
   cp ${prefix}/meme.txt ${prefix}_meme_out.txt 
   """
 }
 
 process MAST {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'docker://memesuite/memesuite:5.5.5'
+    : 'memesuite/memesuite:5.5.5'}"
+
   input:
-      tuple val(meta), path(protein_fasta), path(meme_out)
-      val(gene_id_pattern)
-  
+  tuple val(meta), path(protein_fasta), path(meme_out)
+  val gene_id_pattern
+
   output:
-      tuple val(meta), path("*mast_out.txt"), emit: mast_out
-      tuple val(meta), path("*mast_geneIDs.txt"), emit: mast_geneids
-  
+  tuple val(meta), path("*mast_out.txt"), emit: mast_out
+  tuple val(meta), path("*mast_geneIDs.txt"), emit: mast_geneids
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   mast -o ${meta}_mast ${meme_out} ${protein_fasta}
   cp ${meta}_mast/mast.txt ${meta}_mast_out.txt

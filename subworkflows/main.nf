@@ -418,7 +418,7 @@ workflow PREPARE_ANNOTATIONS {
       .out
       .set { augustus }
 
-    SNAP(ch_genomes)
+    SNAP(ch_genomes, params.snap_organism)
 
     SNAP
       .out

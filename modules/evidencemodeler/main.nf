@@ -7,12 +7,9 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
     label 'process_high'
     
     conda (params.enable_conda ? "bioconda::evidencemodeler=2.1.0" : null)
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'docker://brianjohnhaas/evidencemodeler:2.1.0' :
+        'brianjohnhaas/evidencemodeler:2.1.0' }"
 
     input:
     tuple val(meta), path(genome), path(genes), path(proteins), path(transcripts)

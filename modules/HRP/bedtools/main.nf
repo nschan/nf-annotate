@@ -2,12 +2,9 @@ process BEDTOOLS_GETFASTA {
   tag "$meta"
   label 'process_low'
   
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_2'
+    : 'quay.io/biocontainers/bedtools:2.31.1--hf5e1c6e_2'}"
   input:
       tuple val(meta), path(protein_fasta), path(bed_file)
   
@@ -28,12 +25,9 @@ process BEDTOOLS_CLUSTER {
   tag "$meta"
   label 'process_low'
   
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_2'
+    : 'quay.io/biocontainers/bedtools:2.31.1--hf5e1c6e_2'}"
   input:
       tuple val(meta), path(bed_file)
   
@@ -51,12 +45,9 @@ process BEDTOOLS_NR_CLUSTERS {
   tag "$meta"
   label 'process_low'
   
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/bedtools:2.31.1--hf5e1c6e_2'
+    : 'quay.io/biocontainers/bedtools:2.31.1--hf5e1c6e_2'}"
   input:
       tuple val(meta), path(clusters), path(length_estimates)
   

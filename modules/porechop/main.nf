@@ -1,21 +1,17 @@
 process PORECHOP {
-    tag "$meta"
+    tag "${meta}"
     label 'process_medium'
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'docker://quay.io/schandry_containers/porechop-pigz:latest'
+        : 'quay.io/schandry_containers/porechop-pigz:latest'}"
 
-    conda "bioconda::porechop=0.2.4"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
     input:
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("*_porechopped.fastq.gz") , emit: reads
-    tuple val(meta), path("*.log")                  , emit: log
-    path "versions.yml"                             , emit: versions
+    tuple val(meta), path("*_porechopped.fastq.gz"), emit: reads
+    tuple val(meta), path("*.log"), emit: log
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,13 +22,13 @@ process PORECHOP {
     """
     ## To ensure ID matches rest of pipeline based on meta.id rather than input file name
     
-    [[ -f ${prefix}.fastq.gz   ]] || ln -s $reads ${prefix}.fastq.gz
+    [[ -f ${prefix}.fastq.gz   ]] || ln -s ${reads} ${prefix}.fastq.gz
 
     porechop \\
         -i ${prefix}.fastq.gz \\
-        -t $task.cpus \\
+        -t ${task.cpus} \\
         --no_split \\
-        $args \\
+        ${args} \\
         -o ${prefix}_porechopped.fastq.gz \\
         > ${prefix}.log
 

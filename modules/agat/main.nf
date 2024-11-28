@@ -1,20 +1,18 @@
 process AGAT_FIX_EXTRACT_TRANSCRIPTS {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/agat:1.4.1--pl5321hdfd78af_0'
+    : 'quay.io/biocontainers/agat:1.4.1--pl5321hdfd78af_0'}"
+
   input:
-      tuple val(meta), path(genome_fasta), path(genome_gff)
-  
+  tuple val(meta), path(genome_fasta), path(genome_gff)
+
   output:
-      tuple val(meta), path("*_transcripts.fasta"), emit: extracted_transcripts
-  
+  tuple val(meta), path("*_transcripts.fasta"), emit: extracted_transcripts
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   cat ${genome_fasta} | fold > ${genome_fasta.baseName}.fold.fasta
 
@@ -32,22 +30,20 @@ process AGAT_FIX_EXTRACT_TRANSCRIPTS {
 }
 
 process AGAT_GXF2GFF {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/agat:1.4.1--pl5321hdfd78af_0'
+    : 'quay.io/biocontainers/agat:1.4.1--pl5321hdfd78af_0'}"
+
   input:
-      tuple val(meta), path(gff_cds), path(gff_augustus), path(gff_snap), path(gff_pasa)
-  
+  tuple val(meta), path(gff_cds), path(gff_augustus), path(gff_snap), path(gff_pasa)
+
   output:
-      tuple val(meta), path("*_predictions.gff"), emit: gff_file
-  
+  tuple val(meta), path("*_predictions.gff"), emit: gff_file
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   awk 'BEGIN {OFS="\\t"}; {\$2 = "PASA"; nine=\$9
              for(i=10; i <= NF; i++) nine=nine" "\$i
@@ -61,22 +57,20 @@ process AGAT_GXF2GFF {
 }
 
 process AGAT_GTF2GFF {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/agat:1.4.1--pl5321hdfd78af_0'
+    : 'quay.io/biocontainers/agat:1.4.1--pl5321hdfd78af_0'}"
+
   input:
-      tuple val(meta), path(genome), path(gtf_bambu)
-  
+  tuple val(meta), path(genome), path(gtf_bambu)
+
   output:
-      tuple val(meta), path(genome) , path("*_bambu.gff"), emit: gff_file
-  
+  tuple val(meta), path(genome), path("*_bambu.gff"), emit: gff_file
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   agat_convert_sp_gxf2gxf.pl \\
     -g ${gtf_bambu} \\
@@ -85,23 +79,22 @@ process AGAT_GTF2GFF {
 }
 
 process AGAT_FUNCTIONAL_ANNOTATION {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  publishDir path: { "${params.out}/${task.process}".replace(':', '/').toLowerCase() }, mode: 'copy', overwrite: true, saveAs: { fn -> fn.substring(fn.lastIndexOf('/') + 1) }
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/agat:1.4.1--pl5321hdfd78af_0'
+    : 'quay.io/biocontainers/agat:1.4.1--pl5321hdfd78af_0'}"
+
   input:
-      tuple val(meta), path(gff), path(blast_results), path(interpro_results)
-      tuple val(meta2), path(blast_reference)
-  
+  tuple val(meta), path(gff), path(blast_results), path(interpro_results)
+  tuple val(meta2), path(blast_reference)
+
   output:
-      tuple val(meta), path("*_functional.gff"), emit: gff_file
-  
+  tuple val(meta), path("*_functional.gff"), emit: gff_file
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   sed 's/>\\(AT[A-Z0-9]*\\)/>\\1 unknown GN=\\1 PE=1 SV=1/g' ${blast_reference} \\
     | sed 's/gene=ID=\\(.*\\)/unknown GN=\\1 PE=1 SV=1/g' \\
@@ -118,22 +111,20 @@ process AGAT_FUNCTIONAL_ANNOTATION {
 }
 
 process AGAT_GFF2GTF {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/agat:1.4.1--pl5321hdfd78af_0'
+    : 'quay.io/biocontainers/agat:1.4.1--pl5321hdfd78af_0'}"
+
   input:
-      tuple val(meta), path(gff)
-  
+  tuple val(meta), path(gff)
+
   output:
-      tuple val(meta), path("*.gtf"), emit: gtf_file
-  
+  tuple val(meta), path("*.gtf"), emit: gtf_file
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   agat_convert_sp_gff2gtf.pl \\
   --gff ${gff} \\
@@ -141,22 +132,20 @@ process AGAT_GFF2GTF {
   """
 }
 process AGAT_GFF2BED {
-  tag "$meta"
+  tag "${meta}"
   label 'process_medium'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
+  container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    ? 'https://depot.galaxyproject.org/singularity/agat:1.4.1--pl5321hdfd78af_0'
+    : 'quay.io/biocontainers/agat:1.4.1--pl5321hdfd78af_0'}"
+
   input:
-      tuple val(meta), path(gff)
-  
+  tuple val(meta), path(gff)
+
   output:
-      tuple val(meta), path("*.bed"), emit: bed_file
-  
+  tuple val(meta), path("*.bed"), emit: bed_file
+
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+  def prefix = task.ext.prefix ?: "${meta}"
   """
   agat_convert_sp_gff2bed.pl \\
   --gff ${gff} \\
