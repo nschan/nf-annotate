@@ -22,10 +22,11 @@ process HITE {
   script:
   def prefix = task.ext.prefix ?: "${meta}"
   """
-  python main.py \
+  export PATH=/HiTE/tools:/HiTE/module:/opt/conda/envs/HiTE/bin:\$PATH
+  python /HiTE/main.py \
     --genome ${genome_fasta} \
     --thread ${task.cpus} \
-    --outdir ${prefix} \
+    --outdir \$PWD/${prefix} \
     --annotate
   mv ${prefix}/longest_repeats_*.fa .
   mv ${prefix}/confident_tir_*.fa .
