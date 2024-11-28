@@ -360,7 +360,7 @@ workflow PREPARE_ANNOTATIONS {
       SAMTOOLS_FASTQ
         .out
         .join(ch_genome)
-        .set { ch_ aln }
+        .set { ch_aln }
     } 
     //No preprocessing
     if(!params.preprocess_reads) {
