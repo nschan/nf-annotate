@@ -39,8 +39,8 @@ Processing of reads, genomes and annotations
 
 include { PORECHOP } from '../modules/porechop/main.nf'
 include { SAMTOOLS_FASTQ } from '../modules/samtools/fastq/main.nf'
-include { LIMA } from '../modules/pacbio/main.nf'
-//include { REFINE } from '../modules/pacbio/main.nf'
+include { LIMA } from '../modules/pacbio/lima/main.nf'
+include { REFINE } from '../modules/pacbio/isoseq/refine/main.nf'
 include { SEQKIT_GET_LENGTH as SEQKIT_CONTIG_LENGTH } from '../modules/seqkit/main.nf'
 include { SEQTK_SUBSET_FASTA } from '../modules/seqtk/main.nf'
 include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
@@ -353,10 +353,10 @@ workflow PREPARE_ANNOTATIONS {
     } 
     // Pacbio hifi preprocessing
     if(params.mode == 'pacbio' && params.preprocess_reads) {
-      error 'Pacbio is currently not supported.'
-      if(is.null(params.primers)) error 'No pacbio sequencing primers were provided'
+      //error 'Pacbio is currently not supported.'
+      if(params.primers == null ) error 'No pacbio sequencing primers were provided (params.primers is null)'
       LIMA(ch_reads, params.primers)
-      //REFINE(LIMA.out.bam, params.primers, params.pacbio_polya)
+      REFINE(LIMA.out.bam)
       SAMTOOLS_FASTQ(LIMA.out.bam)
       SAMTOOLS_FASTQ
         .out
@@ -368,7 +368,6 @@ workflow PREPARE_ANNOTATIONS {
       ch_reads
         .join(ch_genome)
         .set { ch_aln }
-
     }
     if(params.aligner == "minimap2") {
       MINIMAP2_ALIGN(ch_aln)
