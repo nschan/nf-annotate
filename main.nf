@@ -311,7 +311,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       cdna_alignment
     )
 
-    TRANPOSONS(ch_genomes)
+    TRANSPOSONS(ch_genomes)
  }
 
  workflow {
