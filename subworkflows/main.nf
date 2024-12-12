@@ -696,7 +696,7 @@ workflow EV_MODELER {
  ===========================================
  */
 
- workflow TRANPSOSONS {
+ workflow TRANSPOSONS {
   take:
     genome // meta, fasta
   
