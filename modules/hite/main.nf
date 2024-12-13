@@ -27,7 +27,7 @@ process HITE {
     --genome ${genome_fasta} \
     --thread ${task.cpus} \
     --outdir \$PWD/${prefix} \
-    --annotate
+    --annotate 1
   mv ${prefix}/longest_repeats_*.fa .
   mv ${prefix}/confident_tir_*.fa .
   mv ${prefix}/confident_helitron_*.fa .
