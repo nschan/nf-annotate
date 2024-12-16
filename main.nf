@@ -1,24 +1,4 @@
 nextflow.enable.dsl = 2 
-params.samplesheet = false
-params.enable_conda = false
-params.preprocess_reads = false
-params.publish_dir_mode = 'copy'
-params.min_contig_length = 5000
-params.exclude_pattern = "ATMG"
-params.bamsortram = 0
-params.mode = 'ont'
-params.primers = null
-params.pacbio_polya = true
-params.aligner = 'minimap2'
-params.reference_name = "Col-CEN"
-params.reference_proteins = '/dss/dsslegfs01/pn73so/pn73so-dss-0000/becker_common/reference_genomes/Arabidopsis/Col-CEN/Col-CEN_v1.2_proteins.fasta'
-params.snap_organism = "A.thaliana"
-params.augustus_species = "arabidopsis"
-params.gene_id_pattern = "AT[1-5C]G[0-9]+.[0-9]+|evm[0-9a-z\\.]*|ATAN.*"
-params.r_genes = true
-params.short_reads = false
-params.out = './results'
-params.nevm = 10
 
 include { HRP } from './subworkflows/main.nf'
 include { GET_R_GENES } from './subworkflows/main.nf'
