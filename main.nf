@@ -290,8 +290,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       ch_genomes,
       cdna_alignment
     )
-
-    TRANSPOSONS(ch_genomes)
+    if(params.transposons) TRANSPOSONS(ch_genomes)
  }
 
  workflow {
