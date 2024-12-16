@@ -29,11 +29,20 @@ process HITE {
     --outdir \$PWD/${prefix} \
     --annotate 1
   mv ${prefix}/longest_repeats_*.fa .
-  mv ${prefix}/confident_tir_*.fa .
-  mv ${prefix}/confident_helitron_*.fa .
-  mv ${prefix}/confident_non_ltr_*.fa .
-  mv ${prefix}/confident_other_*.fa .
-  mv ${prefix}/confident_ltr_cut.fa.cons .
+  if ls ${prefix}/confident_tir_*.fa 1> /dev/null 2>&1; then
+    mv ${prefix}/confident_tir_*.fa .
+  fi
+  if ls ${prefix}/confident_helitron_*.fa 1> /dev/null 2>&1; then
+    mv ${prefix}/confident_helitron_*.fa .
+  fi
+  if ls ${prefix}/confident_non_ltr_*.fa 1> /dev/null 2>&1; then
+    mv ${prefix}/confident_non_ltr_*.fa .
+  fi
+  if ls ${prefix}/confident_ltr_cut.fa.cons 1> /dev/null 2>&1; then
+    mv ${prefix}/confident_ltr_cut.fa.cons .
+  if ls ${prefix}/confident_other_*.fa 1> /dev/null 2>&1; then
+    mv ${prefix}/confident_other_*.fa .
+  fi
   mv ${prefix}/HiTE.out ${prefix}.HiTE.out
   mv ${prefix}/HiTE.gff ${prefix}.HiTE.gff
   mv ${prefix}/HiTE.tbl ${prefix}.HiTE.tbl
