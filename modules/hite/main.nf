@@ -40,6 +40,7 @@ process HITE {
   fi
   if ls ${prefix}/confident_ltr_cut.fa.cons 1> /dev/null 2>&1; then
     mv ${prefix}/confident_ltr_cut.fa.cons .
+  fi
   if ls ${prefix}/confident_other_*.fa 1> /dev/null 2>&1; then
     mv ${prefix}/confident_other_*.fa .
   fi
