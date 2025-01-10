@@ -210,9 +210,7 @@ gitGraph TB:
 
 # Tubemap
 
-This tubemap is somewhat outdated.
-
-![Tubemap](nf-arannotate.tubes.png)
+![Tubemap](nf-arannotate.map.png)
 
 # Pipeline information 
 
@@ -229,10 +227,6 @@ After downloading a new data-release, the container should be run once interacti
 ```bash
 python3 setup.py interproscan.properties
 ```
-
-## genblastG
-
-`genblastG` was used in the original HRP publication. `genblastG` produces too many errors to be reasonably used for production tools, `miniprot` is replacing `genblastG` in this pipeline.
 
 ## BLAST / AGAT_FUNCTIONAL_ANNOTATION
 
