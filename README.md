@@ -210,7 +210,7 @@ gitGraph TB:
 
 # Tubemap
 
-![Tubemap](nf-arannotate.map.png)
+![Tubemap](nf-annotate.map.png)
 
 # Pipeline information 
 
