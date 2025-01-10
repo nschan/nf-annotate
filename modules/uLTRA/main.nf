@@ -35,7 +35,7 @@ process ULTRA_ALIGN {
         $args2 \\
         ${meta}.sam
 
-    rm ${prefix}.sam
+    rm ${meta}.sam
     """
 }
 

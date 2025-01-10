@@ -96,7 +96,7 @@ This pipeline will run the following subworkflows:
     - `SNAP` https://github.com/KorfLab/SNAP/tree/master
     - `AUGUSTUS` https://github.com/Gaius-Augustus/Augustus (kind of paralellized)
     - `MINIPROT` https://github.com/lh3/miniprot
-  * `BAMBU` (long cDNA reads): Run `porechop` (optional) on cDNA reads and align via `minimap2` in `splice:hq` mode. Then run `bambu`
+  * `BAMBU` (long cDNA reads): Run `porechop` (optional) on cDNA reads. These reads are aligned via `minimap2` in `splice:hq` mode or using `ultra`, depending on the value of `params.aligner`. Then run `bambu`
   * `TRINITY` (short cDNA reads): Run `Trim Galore!` on the short reads, followed by `STAR` for alignment and `TRINITY` for transcript discovery from the alignment.
   * `PASA`: Run the [PASA pipeline](https://github.com/PASApipeline/PASApipeline/wiki) on bambu output . This step starts by converting the bambu output (.gtf) by passing it through `agat_sp_convert_gxf2gxf.pl`. Subsequently transcripts are extracted (step `PASA:AGAT_EXTRACT_TRANSCRIPTS`). After running `PASApipeline` the coding regions are extracted via `transdecoder` as bundeld with pasa (`pasa_asmbls_to_training_set.dbi`)
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of tricky, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
