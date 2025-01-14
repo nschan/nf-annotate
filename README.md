@@ -1,17 +1,17 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg)](https://zenodo.org/doi/10.5281/zenodo.12759772)
 
-The goal of [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
+The goal of [`genomeassembler`](https://github.com/nschan/genomeassembler) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
 The assembly is naturally quite organisms agnostic, but the annotation pipeline contains some steps that may not make sense for other eukaryotes, unless there is a particular interest in NB-LRR genes.
 
 # nf-arannotate
 
 The current recommended workflow for assembly and annotation of _Arabidopsis_ from long reads is:
 
-  * Assembly: [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly)
+  * Assembly: [`genomeassembler`](https://github.com/nschan/genomeassembler)
   * Annotation: This pipeline.
 
 This pipeline is designed to annotate outputs from [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly).
-It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads or pacbio isoseq reads.
+It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads or pacbio isoseq reads. If no long transcriptome reads are available short reads can also be used.
 
 If `--short_reads` is `true` the pipeline takes short reads instead of long cDNA. This is probably better than no reads, but for high-quality annotations long transcriptome reads are recommended.
 
@@ -215,6 +215,10 @@ gitGraph TB:
 # Pipeline information 
 
 This pipeline performs a number of steps specifically aimed at discovery and annotation of NLR genes.
+
+# Output
+
+The pipeline will put all outputs into the directory specified via `--out` (default: `./results`)
 
 # Known issues & edge case handling
 
