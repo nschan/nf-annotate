@@ -13,6 +13,7 @@ include { EV_MODELER } from './subworkflows/main.nf'
 //include { EDTA } from './subworkflows/main.nf'
 //include { EDTA_ANNOTATE } from './subworkflows/main.nf'
 include { TRANSPOSONS } from './subworkflows/main.nf'
+include { SATELLITES } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
@@ -291,6 +292,8 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       cdna_alignment
     )
     if(params.transposons) TRANSPOSONS(ch_genomes)
+
+    if(params.satellites) SATELLITES(ch_genomes)
  }
 
  workflow {

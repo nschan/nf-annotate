@@ -46,6 +46,8 @@ nextflow run nf-annotate --samplesheet 'path/to/sample_sheet.csv' \
 | `--short_reads` | Provide this parametere if the transcriptome reads are short reads (see below). Default: `false` |
 | `--bamsortram` | *Short-reads only*: passed to STAR for `--limitBAMsortRAM`. Specifies RAM available for BAM sorting, in bytes. Default: `0` |
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
+| `--transpososons` | Annotate transposons, default `true` |
+| `--satellites` | Annotate satellites, default `true` |
 | `--out` | Results directory, default: `'./results'` |
 
 # Samplesheet

@@ -99,6 +99,11 @@ HiTE
 include { HITE } from '../modules/hite/main'
 
 /*
+TRASH
+*/
+include { TRASH } from '../modules/trash/main'
+
+/*
 EDTA
 */
 include { AGAT_GFF2BED } from '../modules/agat/main'
@@ -713,6 +718,20 @@ workflow EV_MODELER {
   hite_out = HITE.out.hite_out
   hite_gff = HITE.out.hite_gff
   hite_tbl  = HITE.out.hite_tbl 
+ }
+
+ workflow SATELLITES {
+  take:
+    genome
+  
+  main: 
+    TRASH(genome)
+
+  emit:
+    satellite_repeats_fa = TRASH.out.all_repeats_fa
+    satellite_repeats_gff = TRASH.out.repeats_gff   
+    satellite_circos = TRASH.out.circos_plot
+    satellite_summary = TRASH.out.summary       
  }
  // Here are old EDTA transposon
  /*
