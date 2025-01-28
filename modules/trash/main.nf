@@ -26,6 +26,6 @@ process TRASH {
     mv ${prefix}_tmp/all.repeats.from*.csv ${prefix}_TRASH.all_repeats.fa.csv
     mv ${prefix}_tmp/TRASH_*.gff ${prefix}_TRASH.gff
     mv ${prefix}_tmp/plots/*_circos.pdf ${prefix}_TRASH_circos.pdf
-    mv ${prefix}_tmp/Summary.of.repetitive.regions_*.csv ${prefix}_TRASH_summary.csv
+    mv ${prefix}_tmp/Summary.of.repetitive.regions*.csv ${prefix}_TRASH_summary.csv
   """
 }
