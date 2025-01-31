@@ -256,55 +256,55 @@ The pipeline uses these tools:
 
 - [agat](https://github.com/NBISweden/AGAT)
 
-  > Dainat J. 2022. Another Gtf/Gff Analysis Toolkit (AGAT): Resolve interoperability issues and accomplish more with your annotations. Plant and Animal Genome XXIX Conference. https://github.com/NBISweden/AGAT.
+> Dainat J. 2022. Another Gtf/Gff Analysis Toolkit (AGAT): Resolve interoperability issues and accomplish more with your annotations. Plant and Animal Genome XXIX Conference. https://github.com/NBISweden/AGAT.
 
 - [augustus](https://github.com/Gaius-Augustus/Augustus)
 
-  > Stefanie Nachtweide and Mario Stanke (2019), Multi-Genome Annotation with AUGUSTUS. Methods Mol Biol., 1962:139-160. doi: 10.1007/978-1-4939-9173-0_8. PubMed PMID: 31020558
+> Stefanie Nachtweide and Mario Stanke (2019), Multi-Genome Annotation with AUGUSTUS. Methods Mol Biol., 1962:139-160. doi: 10.1007/978-1-4939-9173-0_8. PubMed PMID: 31020558
 
-  > Hoff KJ, Lomsadze A, Borodovsky M, Stanke M. (2019), Whole-Genome Annotation with BRAKER. Methods Mol Biol., 1962:65-95. doi: 10.1007/978-1-4939-9173-0_5. PubMed PMID: 31020555.
+> Hoff KJ, Lomsadze A, Borodovsky M, Stanke M. (2019), Whole-Genome Annotation with BRAKER. Methods Mol Biol., 1962:65-95. doi: 10.1007/978-1-4939-9173-0_5. PubMed PMID: 31020555.
 
-  > Hoff KJ. ,Stanke M. (2018). Predicting genes in single genomes with AUGUSTUS. Current Protocols in Bioinformatics, e57. doi: 10.1002/cpbi.57. manuscript (PDF)
+> Hoff KJ. ,Stanke M. (2018). Predicting genes in single genomes with AUGUSTUS. Current Protocols in Bioinformatics, e57. doi: 10.1002/cpbi.57. manuscript (PDF)
 
-  > Stefanie König, Lars Romoth, Lizzy Gerischer, and Mario Stanke (2016) Simultaneous gene finding in multiple genomes. Bioinformatics, 32 (22): 3388-3395, doi: 10.1093/bioinformatics/btw494
+> Stefanie König, Lars Romoth, Lizzy Gerischer, and Mario Stanke (2016) Simultaneous gene finding in multiple genomes. Bioinformatics, 32 (22): 3388-3395, doi: 10.1093/bioinformatics/btw494
 
-  > Mario Stanke, Mark Diekhans, Robert Baertsch, David Haussler (2008) Using native and syntenically mapped cDNA alignments to improve de novo gene finding. Bioinformatics, doi: 10.1093/bioinformatics/btn013
+> Mario Stanke, Mark Diekhans, Robert Baertsch, David Haussler (2008) Using native and syntenically mapped cDNA alignments to improve de novo gene finding. Bioinformatics, doi: 10.1093/bioinformatics/btn013
 
-  > Mario Stanke, Ana Tzvetkova, Burkhard Morgenstern (2006) "AUGUSTUS at EGASP: using EST, protein and genomic alignments for improved gene prediction in the human genome" BMC Genome Biology, 7(Suppl 1):S11
+> Mario Stanke, Ana Tzvetkova, Burkhard Morgenstern (2006) "AUGUSTUS at EGASP: using EST, protein and genomic alignments for improved gene prediction in the human genome" BMC Genome Biology, 7(Suppl 1):S11
 
-  > Mario Stanke , Oliver Keller, Irfan Gunduz, Alec Hayes, Stephan Waack, Burkhard Morgenstern (2006) "AUGUSTUS: ab initio prediction of alternative transcripts" Nucleic Acids Research, 34: W435-W439.
+> Mario Stanke , Oliver Keller, Irfan Gunduz, Alec Hayes, Stephan Waack, Burkhard Morgenstern (2006) "AUGUSTUS: ab initio prediction of alternative transcripts" Nucleic Acids Research, 34: W435-W439.
 
-  > Mario Stanke, Oliver Schoeffmann, Burkhard Morgenstern and Stephan Waack "Gene prediction in eukaryotes with a generalized hidden Markov model that uses hints from external sources", BMC Bioinformatics, 7:62 (2006)
+> Mario Stanke, Oliver Schoeffmann, Burkhard Morgenstern and Stephan Waack "Gene prediction in eukaryotes with a generalized hidden Markov model that uses hints from external sources", BMC Bioinformatics, 7:62 (2006)
 
-  > Mario Stanke and Burkhard Morgenstern (2005) "AUGUSTUS: a web server for gene prediction in eukaryotes that allows user-defined constraints", Nucleic Acids Research, 33, W465-W467
+> Mario Stanke and Burkhard Morgenstern (2005) "AUGUSTUS: a web server for gene prediction in eukaryotes that allows user-defined constraints", Nucleic Acids Research, 33, W465-W467
 
-  > Mario Stanke, Rasmus Steinkamp, Stephan Waack and Burkhard Morgenstern, "AUGUSTUS: a web server for gene finding in eukaryotes" (2004), Nucleic Acids Research, Vol. 32, W309-W312
+> Mario Stanke, Rasmus Steinkamp, Stephan Waack and Burkhard Morgenstern, "AUGUSTUS: a web server for gene finding in eukaryotes" (2004), Nucleic Acids Research, Vol. 32, W309-W312
 
-  > Mario Stanke (2003), Gene Prediction with a Hidden-Markov Model. Ph.D. thesis, Universitaet Goettingen, http://webdoc.sub.gwdg.de/diss/2004/stanke/
+> Mario Stanke (2003), Gene Prediction with a Hidden-Markov Model. Ph.D. thesis, Universitaet Goettingen, http://webdoc.sub.gwdg.de/diss/2004/stanke/
 
-  > Mario Stanke and Stephan Waack (2003), Gene Prediction with a Hidden-Markov Model and a new Intron Submodel. Bioinformatics, Vol. 19, Suppl. 2, pages ii215-ii225
+> Mario Stanke and Stephan Waack (2003), Gene Prediction with a Hidden-Markov Model and a new Intron Submodel. Bioinformatics, Vol. 19, Suppl. 2, pages ii215-ii225
 
 - [bambu](https://github.com/GoekeLab/bambu)
 
-  > Chen, Y., Sim, A., Wan, Y.K. et al. Context-aware transcript quantification from long-read RNA-seq data with Bambu. Nat Methods (2023). https://doi.org/10.1038/s41592-023-01908-w
+> Chen, Y., Sim, A., Wan, Y.K. et al. Context-aware transcript quantification from long-read RNA-seq data with Bambu. Nat Methods (2023). https://doi.org/10.1038/s41592-023-01908-w
 
 - [bedtools](https://github.com/arq5x/bedtools2)
 
-  > Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842.
+> Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842.
 
 - [blast](https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi)
 
 - [EvidenceModeler](https://github.com/EVidenceModeler/EVidenceModeler)
 
-  > Haas et al. Automated eukaryotic gene structure annotation using EVidenceModeler and the Program to Assemble Spliced Alignments. Genome Biology 2008, 9:R7doi:10.1186/gb-2008-9-1-r7.
+> Haas et al. Automated eukaryotic gene structure annotation using EVidenceModeler and the Program to Assemble Spliced Alignments. Genome Biology 2008, 9:R7doi:10.1186/gb-2008-9-1-r7.
 
 - [HiTE](https://github.com/CSU-KangHu/HiTE)
 
-  > Hu, K., Ni, P., Xu, M. et al. HiTE: a fast and accurate dynamic boundary adjustment approach for full-length transposable element detection and annotation. Nat Commun 15, 5573 (2024). https://doi.org/10.1038/s41467-024-49912-8
+> Hu, K., Ni, P., Xu, M. et al. HiTE: a fast and accurate dynamic boundary adjustment approach for full-length transposable element detection and annotation. Nat Commun 15, 5573 (2024). https://doi.org/10.1038/s41467-024-49912-8
 
 - [interproscan](https://github.com/ebi-pf-team/interproscan)
 
-  > InterProScan 5: genome-scale protein function classification Philip Jones, David Binns, Hsin-Yu Chang, Matthew Fraser, Weizhong Li, Craig McAnulla, Hamish McWilliam, John Maslen, Alex Mitchell, Gift Nuka, Sebastien Pesseat, Antony F. Quinn, Amaia Sangrador-Vegas, Maxim Scheremetjew, Siew-Yit Yong, Rodrigo Lopez, Sarah Hunter Bioinformatics (2014)
+> InterProScan 5: genome-scale protein function classification Philip Jones, David Binns, Hsin-Yu Chang, Matthew Fraser, Weizhong Li, Craig McAnulla, Hamish McWilliam, John Maslen, Alex Mitchell, Gift Nuka, Sebastien Pesseat, Antony F. Quinn, Amaia Sangrador-Vegas, Maxim Scheremetjew, Siew-Yit Yong, Rodrigo Lopez, Sarah Hunter Bioinformatics (2014)
 
 - [isoseq](https://isoseq.how)
 
@@ -312,54 +312,54 @@ The pipeline uses these tools:
 
 - [mast](https://meme-suite.org/meme/tools/mast)
 
-  > Timothy L. Bailey and Michael Gribskov, "Combining evidence using p-values: application to sequence homology searches", Bioinformatics, 14(1):48-54, 1998.
+> Timothy L. Bailey and Michael Gribskov, "Combining evidence using p-values: application to sequence homology searches", Bioinformatics, 14(1):48-54, 1998.
 
 - [meme](https://meme-suite.org/meme)
 
-  > Timothy L. Bailey and Charles Elkan, "Fitting a mixture model by expectation maximization to discover motifs in biopolymers", Proceedings of the Second International Conference on Intelligent Systems for Molecular Biology, pp. 28-36, AAAI Press, Menlo Park, California, 1994.
+> Timothy L. Bailey and Charles Elkan, "Fitting a mixture model by expectation maximization to discover motifs in biopolymers", Proceedings of the Second International Conference on Intelligent Systems for Molecular Biology, pp. 28-36, AAAI Press, Menlo Park, California, 1994.
 
 - [minimap2](https://github.com/lh3/minimap2)
 
-  > Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191
+> Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191
 
-  > Li, H. (2021). New strategies to improve minimap2 alignment accuracy. Bioinformatics, 37:4572-4574. doi:10.1093/bioinformatics/btab705
+> Li, H. (2021). New strategies to improve minimap2 alignment accuracy. Bioinformatics, 37:4572-4574. doi:10.1093/bioinformatics/btab705
 
 - [miniprot](https://github.com/lh3/miniprot)
 
-  > Li, H. (2023) Protein-to-genome alignment with miniprot. Bioinformatics, 39, btad014
+> Li, H. (2023) Protein-to-genome alignment with miniprot. Bioinformatics, 39, btad014
 
 - [PASA](https://github.com/PASApipeline/PASApipeline)
 
-  > Haas, B.J., Delcher, A.L., Mount, S.M., Wortman, J.R., Smith Jr, R.K., Jr., Hannick, L.I., Maiti, R., Ronning, C.M., Rusch, D.B., Town, C.D. et al. (2003) Improving the Arabidopsis genome annotation using maximal transcript alignment assemblies. Nucleic Acids Res, 31, 5654-5666.
+> Haas, B.J., Delcher, A.L., Mount, S.M., Wortman, J.R., Smith Jr, R.K., Jr., Hannick, L.I., Maiti, R., Ronning, C.M., Rusch, D.B., Town, C.D. et al. (2003) Improving the Arabidopsis genome annotation using maximal transcript alignment assemblies. Nucleic Acids Res, 31, 5654-5666.
 
 - [porechop](https://github.com/rrwick/Porechop)
 
 - [samtools](https://github.com/samtools/samtools)
 
-  > Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng Li (2021) Twelve years of SAMtools and BCFtools. GigaScience, Volume 10, Issue 2, February 2021, giab008, https://doi.org/10.1093/gigascience/giab008
+> Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng Li (2021) Twelve years of SAMtools and BCFtools. GigaScience, Volume 10, Issue 2, February 2021, giab008, https://doi.org/10.1093/gigascience/giab008
 
 - [seqkit](https://github.com/shenwei356/seqkit)
 
-  > Wei Shen*, Botond Sipos, and Liuyang Zhao. 2024. SeqKit2: A Swiss Army Knife for Sequence and Alignment Processing. iMeta e191.
+> Wei Shen*, Botond Sipos, and Liuyang Zhao. 2024. SeqKit2: A Swiss Army Knife for Sequence and Alignment Processing. iMeta e191.
 
 - [seqtk](https://github.com/lh3/seqtk)
 
 - [snap](https://github.com/KorfLab/SNAP)
 
-  > Korf I. Gene finding in novel Genomes. BMC Bioinformatics 2004, 5:59
+> Korf I. Gene finding in novel Genomes. BMC Bioinformatics 2004, 5:59
 
 - [STAR](https://github.com/alexdobin/STAR)
 
-  > Dobin et al. 2013. STAR: ultrafast universal RNA-seq aligner. Bioinformatics 29(1):15-21
+> Dobin et al. 2013. STAR: ultrafast universal RNA-seq aligner. Bioinformatics 29(1):15-21
 
 - [TrimGalore](https://github.com/FelixKrueger/TrimGalore)
 
-  > Felix Krueger, Frankie James, Phil Ewels, Ebrahim Afyounian, Michael Weinstein, Benjamin Schuster-Boeckler, Gert Hulselmans, & sclamons. (2023). FelixKrueger/TrimGalore. Zenodo. https://doi.org/10.5281/zenodo.7598955
+> Felix Krueger, Frankie James, Phil Ewels, Ebrahim Afyounian, Michael Weinstein, Benjamin Schuster-Boeckler, Gert Hulselmans, & sclamons. (2023). FelixKrueger/TrimGalore. Zenodo. https://doi.org/10.5281/zenodo.7598955
 
 - [transdecoder and trinity](https://github.com/trinityrnaseq/trinityrnaseq)
 
-  > Grabherr MG, Haas BJ, Yassour M, Levin JZ, Thompson DA, Amit I, Adiconis X, Fan L, Raychowdhury R, Zeng Q, Chen Z, Mauceli E, Hacohen N, Gnirke A, Rhind N, di Palma F, Birren BW, Nusbaum C, Lindblad-Toh K, Friedman N, Regev A. Full-length transcriptome assembly from RNA-seq data without a reference genome. Nat Biotechnol. 2011 May 15;29(7):644-52. doi: 10.1038/nbt.1883.
+> Grabherr MG, Haas BJ, Yassour M, Levin JZ, Thompson DA, Amit I, Adiconis X, Fan L, Raychowdhury R, Zeng Q, Chen Z, Mauceli E, Hacohen N, Gnirke A, Rhind N, di Palma F, Birren BW, Nusbaum C, Lindblad-Toh K, Friedman N, Regev A. Full-length transcriptome assembly from RNA-seq data without a reference genome. Nat Biotechnol. 2011 May 15;29(7):644-52. doi: 10.1038/nbt.1883.
 
 - [uLTRA](https://github.com/ksahlin/ultra)
 
-  > Kristoffer Sahlin, Veli Mäkinen, Accurate spliced alignment of long RNA sequencing reads, Bioinformatics, Volume 37, Issue 24, 15 December 2021, Pages 4643–4651
+> Kristoffer Sahlin, Veli Mäkinen, Accurate spliced alignment of long RNA sequencing reads, Bioinformatics, Volume 37, Issue 24, 15 December 2021, Pages 4643–4651
