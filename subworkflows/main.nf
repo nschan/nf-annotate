@@ -103,18 +103,6 @@ TRASH
 */
 include { TRASH } from '../modules/trash/main'
 
-/*
-EDTA
-*/
-include { AGAT_GFF2BED } from '../modules/agat/main'
-include { EDTA_FULL } from '../modules/edta/main'
-include { LTR } from '../modules/edta/main'
-include { TIR } from '../modules/edta/main'
-include { HELITRON } from '../modules/edta/main'
-include { LINE } from '../modules/edta/main'
-include { SINE } from '../modules/edta/main'
-include { MERGE } from '../modules/edta/main'
-
 /* 
  ===========================================
  ===========================================
@@ -733,89 +721,4 @@ workflow EV_MODELER {
     satellite_circos = TRASH.out.circos_plot
     satellite_summary = TRASH.out.summary       
  }
- // Here are old EDTA transposon
- /*
- workflow TRANPOSONS_EDTA {
-  take:
-    annotated_genome // meta, fasta, gff
-      
-  main:
-    
-    annotated_genome
-      .map { it -> [ it[0], it[1]] }
-      .set { genome }
-
-    annotated_genome
-      .map { it -> [ it[0], it[2]] }
-      .set { annotations }
-    
-    AGAT_GFF2BED(annotations)
-
-    AGAT_EXTRACT_TRANSCRIPTS(annotated_genome)
-
-    genome
-      .join(AGAT_GFF2BED.out)
-      .join(AGAT_EXTRACT_TRANSCRIPTS.out)
-      .set { edta_in }
-
-    EDTA_FULL(edta_in)
-
-    emit:
-      EDTA_FULL.out.transposon_annotations
-      EDTA_FULL.out.transposon_summary
- }
-
- workflow EDTA_ANNOTATE {
-  take:
-    annotated_genome // meta, fasta, gff
-    transposons
-      
-  main:
  
-    annotated_genome
-      .map { it -> [ it[0], it[1]] }
-      .set { genome }
-    
-    annotated_genome
-      .map { it -> [ it[0], it[2]] }
-      .set { annotations }
-    // Prepare files for EDTA main
-    AGAT_EXTRACT_TRANSCRIPTS(annotated_genome)
-    AGAT_GFF2BED(annotations)
-    // Join everything from EDTA subprocessess
-    genome
-      .join(AGAT_GFF2BED.out)
-      .join(AGAT_EXTRACT_TRANSCRIPTS.out)
-      .join(transposons)
-      .set { merge_in }
-    // Run Merge
-    MERGE(merge_in)
-
-    emit:
-      annotations = MERGE.out.transposon_annotations
-      summary = MERGE.out.transposon_summary
- }
-
- workflow EDTA {
-  take:
-    genome //meta, fasta
-  main:
-    // EDTA subprocessess
-    LTR(genome)
-    TIR(genome)
-    HELITRON(genome)
-    LINE(genome)
-    SINE(genome)
-    genome
-      .map { it -> it[0] }
-      .join(LTR.out)
-      .join(TIR.out)
-      .join(HELITRON.out)
-      .join(LINE.out)
-      .join(SINE.out)
-      .set { transposons }
-  emit:
-    transposons
-
- }
- */
