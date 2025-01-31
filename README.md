@@ -256,7 +256,7 @@ The pipeline uses these tools:
 
 - [agat](https://github.com/NBISweden/AGAT)
 
-> Dainat J. 2022. Another Gtf/Gff Analysis Toolkit (AGAT): Resolve interoperability issues and accomplish more with your annotations. Plant and Animal Genome XXIX Conference. https://github.com/NBISweden/AGAT.
+  > Dainat J. 2022. Another Gtf/Gff Analysis Toolkit (AGAT): Resolve interoperability issues and accomplish more with your annotations. Plant and Animal Genome XXIX Conference. https://github.com/NBISweden/AGAT.
 
 - [augustus](https://github.com/Gaius-Augustus/Augustus)
 
