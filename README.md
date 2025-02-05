@@ -12,7 +12,7 @@ The current recommended workflow for assembly and annotation of _Arabidopsis_ fr
   * Assembly: [`genomeassembler`](https://github.com/nschan/genomeassembler)
   * Annotation: This pipeline.
 
-This pipeline is designed to annotate outputs from [`nf-genomeassembly`](https://github.com/nschan/nf-genomeassembly).
+This pipeline is designed to annotate outputs from [`genomeassembler`](https://github.com/nschan/genomeassembler).
 It takes a samplesheet of genome assemblies, intitial annotations (liftoff) and *cDNA* ONT Nanopore reads or pacbio isoseq reads. If no long transcriptome reads are available short reads can also be used.
 
 If `--short_reads` is `true` the pipeline takes short reads instead of long cDNA. This is probably better than no reads, but for high-quality annotations long transcriptome reads are recommended.
