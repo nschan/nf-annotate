@@ -332,7 +332,7 @@ workflow PREPARE_ANNOTATIONS {
       .set { ch_genome_annotation }
 
     // ONT Trimming
-    if(params.mode != 'ont' && params.preprocess_reads) {
+    if(params.mode == 'ont' && params.preprocess_reads) {
 
       PORECHOP(ch_reads)
 
