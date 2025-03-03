@@ -8,6 +8,7 @@ process MINIMAP2_TO_BAM {
         'biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:3161f532a5ea6f1dec9be5667c9efc2afdac6104-0' }"
     input:
         tuple val(meta), path(reads), path(reference)
+        val(mode)
 
     output:
         tuple val(meta), path("*.bam"), emit: alignment
@@ -15,7 +16,7 @@ process MINIMAP2_TO_BAM {
     script:
         """
         minimap2 -t $task.cpus \\
-            -ax splice:hq -uf ${reference} ${reads} \\
+            -ax ${mode} ${reference} ${reads} \\
             | samtools sort -o ${meta}_${reference}.bam
         """
 }
