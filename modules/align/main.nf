@@ -16,7 +16,7 @@ process MINIMAP2_TO_BAM {
     script:
         """
         minimap2 -t $task.cpus \\
-            -ax ${mode} ${reference} ${reads} \\
+            ${mode} ${reference} ${reads} \\
             | samtools sort -o ${meta}_${reference}.bam
         """
 }
