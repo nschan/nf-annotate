@@ -363,7 +363,7 @@ workflow PREPARE_ANNOTATIONS {
         .set { ch_aln }
     }
     if(params.aligner == "minimap2") {
-      def minimap_mode = params.mode == 'pacbio' ? '"-ax map-hifi"' : '"-ax map-ont"'
+      def minimap_mode = params.mode == 'pacbio' ? '-ax map-hifi' : '-ax map-ont'
       MINIMAP2_ALIGN(ch_aln, minimap_mode)
 
       MINIMAP2_ALIGN
