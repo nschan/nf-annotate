@@ -44,11 +44,14 @@ include { REFINE } from '../modules/pacbio/isoseq/refine/main.nf'
 include { SEQKIT_GET_LENGTH as SEQKIT_CONTIG_LENGTH } from '../modules/seqkit/main.nf'
 include { SEQTK_SUBSET_FASTA } from '../modules/seqtk/main.nf'
 include { SUBSET_ANNOTATIONS } from '../modules/seqtk/main.nf'
-include { AGAT_FIX_EXTRACT_TRANSCRIPTS as AGAT_EXTRACT_TRANSCRIPTS } from '../modules/agat/main.nf'
-include { AGAT_GTF2GFF } from '../modules/agat/main.nf'
-include { AGAT_GXF2GFF } from '../modules/agat/main.nf'
-include { AGAT_GFF2GTF } from '../modules/agat/main.nf'
-include { AGAT_FUNCTIONAL_ANNOTATION } from '../modules/agat/main.nf'
+include { AGAT_FIX_EXTRACT_TRANSCRIPTS as AGAT_EXTRACT_TRANSCRIPTS } from '../modules/agat/fix_extract/main.nf'
+include { AGAT_GTF2GFF } from '../modules/agat/gtf2gff/main.nf'
+include { AGAT_GXF2GFF } from '../modules/agat/gxf2gff/main.nf'
+include { AGAT_GFF2GTF } from '../modules/agat/gff2gtf/main.nf'
+include { AGAT_FUNCTIONAL_ANNOTATION } from '../modules/agat/functional_annotation/main.nf'
+include { AGAT_COMPLEMENT as AGAT_COMPLEMENT_UPDATE1 } from '../modules/agat/complement/main.nf'
+include { AGAT_COMPLEMENT as AGAT_COMPLEMENT_UPDATE2 } from '../modules/agat/complement/main.nf'
+include { AGAT_COMPLEMENT as AGAT_COMPLEMENT_UPDATE3 } from '../modules/agat/complement/main.nf'
 
 /*
 Ab initio
@@ -473,9 +476,11 @@ workflow PASA {
 
     PASA_PIPELINE(ch_genomes.join(transcripts))
 
-    PASA_PIPELINE.out.pasa_assembly_fasta.join(
-        PASA_PIPELINE.out.pasa_assembly_gff
-    ).set { td_in }
+    PASA_PIPELINE.out.pasa_assembly_fasta
+        .join(
+            PASA_PIPELINE.out.pasa_assembly_gff
+        )
+        .set { td_in }
 
     PASA_PIPELINE.out.pasa_assembly_gff.set { pasa }
 
@@ -655,8 +660,12 @@ workflow UPDATE_PASA {
         .join(ch_pasa_db)
         .set { pasa_update_in }
     PASA_UPDATE(pasa_update_in)
+    ch_annotations
+        .join(PASA_UPDATE.out.updated_annotations)
+        .map { meta, annotation, update1 -> [meta, annotation, update1, [], []] }
+        .set { complement_update_in }
+    AGAT_COMPLEMENT_UPDATE1(complement_update_in)
     if (params.pasa_update_iterations > 1) {
-
         ch_genome
             .join(transcripts)
             .join(PASA_UPDATE.out.updated_annotations)
@@ -664,6 +673,14 @@ workflow UPDATE_PASA {
             .set { pasa_update2_in }
 
         PASA_UPDATE_2(pasa_update2_in)
+
+        ch_annotations
+            .join(PASA_UPDATE.out.updated_annotations)
+            .join(PASA_UPDATE_2.out.updated_annotations)
+            .map { meta, annotation, update1, update2 -> [meta, annotation, update1, update2, []] }
+            .set { complement_update2_in }
+
+        AGAT_COMPLEMENT_UPDATE2(complement_update2_in)
     }
     if (params.pasa_update_iterations > 2) {
         ch_genome
@@ -673,6 +690,14 @@ workflow UPDATE_PASA {
             .set { pasa_update3_in }
 
         PASA_UPDATE_3(pasa_update3_in)
+
+        ch_annotations
+            .join(PASA_UPDATE.out.updated_annotations)
+            .join(PASA_UPDATE_2.out.updated_annotations)
+            .join(PASA_UPDATE_3.out.updated_annotations)
+            .set { complement_update3_in }
+
+        AGAT_COMPLEMENT_UPDATE3(complement_update3_in)
     }
 
     emit:
