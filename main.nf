@@ -14,6 +14,7 @@ include { TRANSPOSONS } from './subworkflows/main.nf'
 include { SATELLITES } from './subworkflows/main.nf'
 include { BLAST } from './subworkflows/main.nf'
 include { FUNCTIONAL } from './subworkflows/main.nf'
+include { UPDATE_PASA } from './subworkflows/main.nf'
 include { AGAT_GXF2GFF } from './modules/agat/main.nf'
 include { create_shortread_channel } from './subworkflows/main.nf'
 
@@ -47,6 +48,8 @@ Niklas Schandry                                  niklas@bio.lmu.de              
      aligner         : ${params.aligner}
      short reads     : ${params.short_reads}
      STAR: BAM RAM   : ${params.bamsortram}
+     PASA update     : ${params.pasa_update}
+        iterations   : ${params.pasa_update_iterations}
    outdir            : ${params.out}
    conda             : ${params.enable_conda}
 
@@ -217,7 +220,7 @@ Niklas Schandry                                  niklas@bio.lmu.de              
                 .out
                 .annotation_subset)
         .join(ch_samples
-                .map( it -> [ it.sample, it.shortread_F, it.shortread_R, it.paired ] ))
+                .map { it -> [ it.sample, it.shortread_F, it.shortread_R, it.paired ] } )
         .set { ch_trinity }
            
       RUN_TRINITY(ch_trinity)
@@ -289,6 +292,10 @@ Niklas Schandry                                  niklas@bio.lmu.de              
       ch_genomes,
       cdna_alignment
     )
+    if(params.pasa_update) {
+      UPDATE_PASA(ch_genomes, transcripts, FUNCTIONAL.out.functional_annot_gff, PASA.out.pasa_db)
+    }
+    
     if(params.transposons) TRANSPOSONS(ch_genomes)
 
     if(params.satellites) SATELLITES(ch_genomes)

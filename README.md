@@ -50,6 +50,8 @@ nextflow run nf-annotate --samplesheet 'path/to/sample_sheet.csv' \
 | `--min_contig_length` | minimum length of contigs to keep, default: 5000 |
 | `--transpososons` | Annotate transposons, default `true` |
 | `--satellites` | Annotate satellites, default `true` |
+| `--pasa_update` | Annotate UTRs with pasa, default `true` |
+| `--pasa_update_iterations` | How many iterations of pasa update (max: 3), default `3` |
 | `--out` | Results directory, default: `'./results'` |
 
 # Samplesheet
@@ -106,6 +108,7 @@ This pipeline will run the following subworkflows:
   * `EVIDENCE_MODELER`: Take all outputs from above and the initial annotation (typically via `liftoff`) and run them through [Evidence Modeler](https://github.com/EVidenceModeler/EVidenceModeler/wiki). The implementation of this was kind of tricky, it is currently parallelized in chunks via `xargs -n${task.cpus} -P${task.cpus}`. I assume that this is still faster than running it fully sequentially. This produces the final annotations, `FUNCTIONAL` only extends this with extra information in column 9 of the gff file.
   * `GET_R_GENES`: R-Genes (NLRs) are identified in the final annotations based on `interproscan`.
   * `FUNCTIONAL`: Create functional annotations based on `BLAST` against reference and `interproscan-pfam`. Produces protein fasta. Creates `.gff` and `.gtf` outputs. Also quantifies transcripts via `bambu`.
+  * `UPDATE_PASA`: Three rounds of updating the functional annotations via pasa to create additional structural annotations, such as UTRs.
 
 In addition to annotating protein coding genes, the pipeline can also create additional annotations:
 

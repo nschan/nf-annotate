@@ -21,11 +21,11 @@ process AGAT_FIX_EXTRACT_TRANSCRIPTS {
     -o ${genome_gff}.tmp
 
   agat_sp_extract_sequences.pl \\
-  -g ${genome_gff}.tmp \\
-  -f ${genome_fasta.baseName}.fold.fasta \\
-  -o ${meta}_transcripts.fasta \\
-  -t exon \\
-  --merge
+    -g ${genome_gff}.tmp \\
+    -f ${genome_fasta.baseName}.fold.fasta \\
+    -o ${meta}_transcripts.fasta \\
+    -t exon \\
+    --merge
   """
 }
 

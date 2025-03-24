@@ -63,6 +63,7 @@ process PASA_PIPELINE {
     tuple val(meta), path("*pasa_assemblies.bed"), emit: pasa_assembly_bed
     tuple val(meta), path("*ascii_illustrations.out"), emit: pasa_ascii
     tuple val(meta), path("*assemblies_described.txt"), emit: pasa_tsv
+    tuple val(meta), path("pasa_DB_*.sqlite"), emit: database
 
     script:
     def args = task.ext.args ?: ''
@@ -86,5 +87,49 @@ process PASA_PIPELINE {
            -t ${accession_transcripts}.tmp \\
            --ALIGNERS gmap,minimap2 \\
            --CPU ${task.cpus}
-        """
+    """
+}
+
+process PASA_UPDATE {
+    tag "${meta}"
+    label 'process_medium'
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'docker://pasapipeline/pasapipeline:2.5.3'
+        : 'pasapipeline/pasapipeline:2.5.3'}"
+
+    input:
+    tuple val(meta), path(accession_genome), path(accession_transcripts), path(annotations_gff, name: "input_annotations.gff3"), path(database)
+
+    output:
+    tuple val(meta), path("*_gene_structures_updated.gff3"), emit: updated_annotations
+    tuple val(meta), path("*_gene_structures_updated.bed"), emit: updated_annotations_bed
+
+    script:
+    def pasa_config = file("${projectDir}/assets/pasa.config", checkIfExists: true)
+    def db = database
+    """
+    export USER=${workflow.userName}
+    cat /usr/local/src/PASApipeline/pasa_conf/pasa.alignAssembly.Template.txt \\
+     | sed 's@<__DATABASE__>@${db}@g' > ${meta}_assembly_conf.config
+
+    make_pasa_config.pl --infile ${pasa_config} --trunk ${meta} --outfile pasa_DB.config
+
+    /usr/local/src/PASApipeline/scripts/Load_Current_Gene_Annotations.dbi \\
+        -c pasa_DB.config \\
+        -g ${accession_genome} \\
+        -P input_annotations.gff3
+
+    cat /usr/local/src/PASApipeline/pasa_conf/pasa.annotationCompare.Template.txt \\
+     | sed 's@<__DATABASE__>@${db}@g' > ${meta}_conf.config
+    /usr/local/src/PASApipeline/Launch_PASA_pipeline.pl \\
+        -c pasa_DB.config \\
+        -A \\
+        -g ${accession_genome} \\
+        -t ${accession_transcripts} \\
+        --CPU ${task.cpus}
+
+    mv *.gene_structures_post_PASA_updates.*.gff3 ${meta}_gene_structures_updated.gff3
+    mv *.gene_structures_post_PASA_updates.*.bed ${meta}_gene_structures_updated.bed
+
+    """
 }
