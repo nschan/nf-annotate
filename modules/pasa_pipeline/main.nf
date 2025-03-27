@@ -128,8 +128,8 @@ process PASA_UPDATE {
         -t ${accession_transcripts} \\
         --CPU ${task.cpus}
 
-    mv *.gene_structures_post_PASA_updates.*.gff3 ${meta}_gene_structures_updated.gff3
-    mv *.gene_structures_post_PASA_updates.*.bed ${meta}_gene_structures_updated.bed
+    cp *.gene_structures_post_PASA_updates.*.gff3 ${meta}_gene_structures_updated.gff3
+    cp *.gene_structures_post_PASA_updates.*.bed ${meta}_gene_structures_updated.bed
 
     """
 }
