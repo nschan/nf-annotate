@@ -96,6 +96,7 @@ process PASA_UPDATE {
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
         ? 'docker://pasapipeline/pasapipeline:2.5.3'
         : 'pasapipeline/pasapipeline:2.5.3'}"
+    cache 'lenient'
 
     input:
     tuple val(meta), path(accession_genome), path(accession_transcripts), path(annotations_gff, name: "input_annotations.gff3"), path(database)

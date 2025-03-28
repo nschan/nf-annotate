@@ -37,12 +37,16 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
        transcript_options = "--transcript_alignments $transcripts"
     }
     """
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: STARTING"
+    
     # Convert miniprot gff to evm compatible gff..
     # The container requires python3, not python. Replace shebang and write to local file..
     sed 's/python\$/python3/' /usr/local/bin/EvmUtils/misc/miniprot_GFF_2_EVM_GFF3.py > miniprot_GFF_2_EVM_GFF3.py
     chmod +x miniprot_GFF_2_EVM_GFF3.py
     ./miniprot_GFF_2_EVM_GFF3.py $proteins > ${proteins}.tmp
     mv ${proteins}.tmp $proteins
+
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: CREATING PARTITIONS"
 
     # Create partitions
     /usr/local/bin/EvmUtils/partition_EVM_inputs.pl --genome $genome \\
@@ -56,12 +60,15 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
 
     # Create commands per partitions
 
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: CREATING COMMANDS"
+
     /usr/local/bin/EvmUtils/write_EVM_commands.pl --genome $genome \\
        --weights ${weights} \\
        --gene_predictions $genes \\
        --output_file_name $evm_out \\
        --partitions $partitions $transcript_options $protein_options > $evm_commands
 
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: FEEDING COMMANDS TO XARGS"
     # Run commands via xargs
     cat $evm_commands \\
     | xargs \\
@@ -71,10 +78,14 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
         -I{} \\
         /bin/bash -c '{}'
 
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: COLLECTING OUTPUTS"
+
     # Collect outputs
     /usr/local/bin/EvmUtils/recombine_EVM_partial_outputs.pl \\
         --partitions $partitions \\
         --output_file_name ${evm_out}
+
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: CREATING GFFs"
 
     # Create gffs
     /usr/local/bin/EvmUtils/convert_EVM_outputs_to_GFF3.pl \\
@@ -82,11 +93,15 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
         --genome $genome \\
         --output_file_name ${evm_out}
 
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: COMBINING GFFs"
+
     # Collect gff files
     find . \\
     | grep evm.out.gff3 \\
     | sort \\
     | xargs cat > ${meta}_evm.full.gff
+
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: COMBINING evm.outs"
 
     # Collect evm.out files
     find ./* \\
@@ -94,11 +109,18 @@ process EVIDENCEMODELER_PART_EXEC_MERGE {
     | sort \\
     | xargs cat > ${meta}_evm.out
 
+
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: CREATING PROTEIN FASTA"
+
     # Create protein fasta
     /usr/local/bin/EvmUtils/gff3_file_to_proteins.pl ${meta}_evm.full.gff $genome prot > ${meta}_evm.full.pep
 
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: CREATING NUCLEOTIDE FASTA"
+
     # Create nucleotide fasta
     /usr/local/bin/EvmUtils/gff3_file_to_proteins.pl ${meta}_evm.full.gff $genome CDS > ${meta}_evm.full.cds
+
+    echo "\$(date +"%Y-%m-%d %H:%M:%S") DEBUG: CREATING BED FILE"
 
     # Create bed file
     /usr/local/bin/EvmUtils/gene_gff3_to_bed.pl ${meta}_evm.full.gff \\
