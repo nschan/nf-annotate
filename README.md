@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759772.svg)](https://zenodo.org/doi/10.5281/zenodo.12759772)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12759771.svg)](https://zenodo.org/doi/10.5281/zenodo.12759771)
 
 The goal of [`nf-core/genomeassembler`](https://github.com/nf-core/genomeassembler) and [`nf-annotate`](https://github.com/nschan/nf-annotate) is to make to genome assembly and annotation workflows accessible for a broader community, particularily for plant-sciences. Long-read sequencing technologies are already cheap and will continue to drop in price, genome sequencing will soon be available to many researchers without a strong bioinformatic background. 
 The assembly is naturally quite organisms agnostic, but the annotation pipeline contains some steps that may not make sense for other eukaryotes, unless there is a particular interest in NB-LRR genes.
