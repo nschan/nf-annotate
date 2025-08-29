@@ -699,11 +699,6 @@ workflow UPDATE_PASA {
 
         AGAT_COMPLEMENT_UPDATE3(complement_update3_in)
     }
-
-    emit:
-    iteration1_annotations = PASA_UPDATE.out.updated_annotations
-    iteration2_annotations = PASA_UPDATE_2.out.updated_annotations
-    iteration3_annotations = PASA_UPDATE_2.out.updated_annotations
 }
 
 /*

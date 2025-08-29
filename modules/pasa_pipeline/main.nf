@@ -70,7 +70,7 @@ process PASA_PIPELINE {
     def pasa_config = file("${projectDir}/assets/pasa.config", checkIfExists: true)
     pasa_assemblies_fasta = "pasa_DB_${meta}.sqlite.assemblies.fasta"
     pasa_assemblies_gff = "pasa_DB_${meta}.sqlite.pasa_assemblies.gff3"
-    db_name = "pasa_DB_${meta}.sqlite"
+    db_name = "pasa_DB_${meta}.sql"
     """
         # Clean fasta file, remove empty entries
         cat ${accession_transcripts} \\
@@ -111,7 +111,7 @@ process PASA_UPDATE {
     """
     export USER=${workflow.userName}
     cat /usr/local/src/PASApipeline/pasa_conf/pasa.alignAssembly.Template.txt \\
-     | sed 's@<__DATABASE__>@${db}@g' > ${meta}_assembly_conf.config
+     | sed 's@<__DATABASE__>@${task.workDir}/${db}@g' > ${meta}_assembly_conf.config
 
     make_pasa_config.pl --infile ${pasa_config} --trunk ${meta} --outfile pasa_DB.config
 
