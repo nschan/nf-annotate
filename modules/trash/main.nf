@@ -2,7 +2,7 @@ process TRASH {
     tag "${meta}"
     label 'process_high'
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? ''
+        ? 'docker://quay.io/schandry_containers/trash:latest'
         : 'quay.io/schandry_containers/trash:latest'}"
 
     input:
